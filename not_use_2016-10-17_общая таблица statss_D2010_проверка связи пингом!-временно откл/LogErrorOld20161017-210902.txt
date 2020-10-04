@@ -1,0 +1,7 @@
+datetime_proverka=20.05.2016 3:23:10
+now=17.10.2016 21:08:32
+now-datetime_proverka=150,7398
+SSHConn.Answer="
+         BROADCAST PROMISC ALLMULTI MULTICAST  MTU:1500  Metric:1
+
+"

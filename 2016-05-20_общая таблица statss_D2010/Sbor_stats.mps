@@ -1,0 +1,44 @@
+[Hooked Modules]
+Sbor_stats.exe=T
+[Non-Hooked Modules]
+Secur32.dll=T
+pshook.dll=T
+imagehlp.dll=T
+MSCTF.dll=T
+midas.dll=T
+wshtcpip.dll=T
+hnetcfg.dll=T
+rasadhlp.dll=T
+winrnr.dll=T
+iphlpapi.dll=T
+mswsock.dll=T
+odbccp32.dll=T
+myodbc5w.dll=T
+USERENV.dll=T
+RESUTILS.DLL=T
+CLUSAPI.DLL=T
+MTXCLU.DLL=T
+colbact.DLL=T
+comsvcs.dll=T
+MSDASQLR.DLL=T
+odbcint.dll=T
+ODBC32.dll=T
+MSDATL3.dll=T
+msdasql.dll=T
+OLEDB32R.DLL=T
+oledb32.dll=T
+MSWSTR10.DLL=T
+xpsp2res.dll=T
+MSDART.DLL=T
+msado15.dll=T
+COMRes.dll=T
+CLBCATQ.DLL=T
+msadcer.dll=T
+msadce.dll=T
+oleaut32.dll=T
+msvcrt.dll=T
+ole32.dll=T
+CL32.DLL=T
+MSVCR100.dll=T
+[General]
+Run Parameters=--

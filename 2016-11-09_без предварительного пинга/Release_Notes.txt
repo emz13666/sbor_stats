@@ -1,0 +1,21 @@
+2016-11-09:
+
+”стройство, которое недоступно более 5 минут опрашиваетс€ 1 раз в минуту.
+
+— базовой станции собираютс€ следующие параметры в отдельную таблицу statss_base:
+.1.3.6.1.4.1.10002.1.1.1.4.2.1.3.1 load average 1 minute
+.1.3.6.1.2.1.2.2.1.10.2   eth0: The total number of octets received on the interface, including framing characters.
+.1.3.6.1.2.1.2.2.1.16.2   eth0: The total number of octets transmitted out of the interface, including framing characters.
+.1.3.6.1.4.1.10002.1.1.1.1.2.0 Mem free
+
+2016-11-10:
+ѕри неответе по snmp пишу -1 в loadavg;
+вместо total number of octets пишу в базу значени€ скоростей, рассчитанных как:
+
+nowtickcount:=gettickcount;
+if lasttickcount>0 then begin
+  tx_per_sec:=(tx_octets_eth0-last_tx_octets)*8/(nowtickcount-lasttickcount);
+  lasttickcount := gettickcount;
+end else
+if (tx_octets_eth0-last_tx_octets)>0 then lasttickcount := gettickcount;
+(байт/сек)

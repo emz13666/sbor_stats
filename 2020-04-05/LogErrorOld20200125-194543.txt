@@ -1,0 +1,1 @@
+25.01.2020 19:45:17: Executed ssh command: grep -v "netconf.2.up=" /tmp/system.cfg > /tmp/tempconfig;echo "netconf.2.up=disabled" >> /tmp/tempconfig;mv /tmp/tempconfig /tmp/system.cfg;cfgmtd -w -p /etc/;rebooton 10.70.120.22

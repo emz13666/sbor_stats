@@ -1,0 +1,199 @@
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0x17C, and the stack trace (return addresses) at the time was:
+402AB7 [system.pas][System][@GetMem][2460]
+403B53 [system.pas][System][TObject.NewInstance][8292]
+403F1A [system.pas][System][@ClassCreate][8952]
+436282 [Contnrs.pas][Contnrs][TObjectList.Create]
+403B5C [system.pas][System][TObject.NewInstance][8292]
+406B2D [system.pas][System][TInterfacedObject.NewInstance][17349]
+403F1A [system.pas][System][@ClassCreate][8952]
+4373FE [HelpIntfs.pas][HelpIntfs][THelpManager.Create][292]
+437305 [HelpIntfs.pas][HelpIntfs][GetHelpSystem][272]
+404B75 [system.pas][System][@NewAnsiString][11534]
+470BEE [Forms.pas][Forms][TApplication.ValidateHelpSystem][7103]
+
+The block is currently used for an object of class: TObjectList
+
+The allocation number is: 195
+
+Current memory dump of 256 bytes starting at pointer address 7FF95C20:
+8C 61 43 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 CB C4 11 7A 00 00 00 00 40 32 F9 7F
+00 00 00 00 00 00 00 00 C4 A2 40 00 00 00 00 00 C4 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+82 62 43 00 10 74 43 00 05 73 43 00 75 4B 40 00 EE 0B 47 00 AE E7 46 00 72 3F 40 00 B0 D0 46 00
+7C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 00 00 00 00 00 46 3F 1A 83
+8C 61 43 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 B9 C0 E5 7C 00 00 00 00 40 32 F9 7F
+00 00 00 00 00 00 00 00 C4 A2 40 00 00 00 00 00 C5 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+82 62 43 00 22 74 43 00 05 73 43 00 75 4B 40 00 EE 0B 47 00 AE E7 46 00 72 3F 40 00 B0 D0 46 00
+å  a  C  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  À  ƒ  .  z  .  .  .  .  @  2  ˘  
+.  .  .  .  .  .  .  .  ƒ  ¢  @  .  .  .  .  .  ƒ  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+Ç  b  C  .  .  t  C  .  .  s  C  .  u  K  @  .  Ó  .  G  .  Æ  Á  F  .  r  ?  @  .  ∞  –  F  .
+|  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  F  ?  .  É
+å  a  C  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  π  ¿  Â  |  .  .  .  .  @  2  ˘  
+.  .  .  .  .  .  .  .  ƒ  ¢  @  .  .  .  .  .  ≈  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+Ç  b  C  .  "  t  C  .  .  s  C  .  u  K  @  .  Ó  .  G  .  Æ  Á  F  .  r  ?  @  .  ∞  –  F  .
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0x17C, and the stack trace (return addresses) at the time was:
+402AB7 [system.pas][System][@GetMem][2460]
+403B53 [system.pas][System][TObject.NewInstance][8292]
+403F1A [system.pas][System][@ClassCreate][8952]
+436282 [Contnrs.pas][Contnrs][TObjectList.Create]
+437410 [HelpIntfs.pas][HelpIntfs][THelpManager.Create][293]
+437305 [HelpIntfs.pas][HelpIntfs][GetHelpSystem][272]
+404B75 [system.pas][System][@NewAnsiString][11534]
+470BEE [Forms.pas][Forms][TApplication.ValidateHelpSystem][7103]
+46E7AE [Forms.pas][Forms][TApplication.Create][6109]
+403F72 [system.pas][System][@AfterConstruction][8999]
+46D0B0 [Forms.pas][Forms][TScreen.Create][5293]
+
+The block is currently used for an object of class: TObjectList
+
+The allocation number is: 196
+
+Current memory dump of 256 bytes starting at pointer address 7FF95CC0:
+8C 61 43 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 B9 C0 E5 7C 00 00 00 00 40 32 F9 7F
+00 00 00 00 00 00 00 00 C4 A2 40 00 00 00 00 00 C5 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+82 62 43 00 22 74 43 00 05 73 43 00 75 4B 40 00 EE 0B 47 00 AE E7 46 00 72 3F 40 00 B0 D0 46 00
+7C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 00 00 00 00 00 F9 3F 1A 83
+8C 61 43 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 06 C0 E5 7C 00 00 00 00 21 5E F9 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C7 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+88 3B 40 00 D9 96 42 00 80 97 42 00 DC 94 42 00 18 7D 44 00 C4 C4 44 00 B4 39 45 00 60 2F 45 00
+å  a  C  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  π  ¿  Â  |  .  .  .  .  @  2  ˘  
+.  .  .  .  .  .  .  .  ƒ  ¢  @  .  .  .  .  .  ≈  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+Ç  b  C  .  "  t  C  .  .  s  C  .  u  K  @  .  Ó  .  G  .  Æ  Á  F  .  r  ?  @  .  ∞  –  F  .
+|  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ˘  ?  .  É
+å  a  C  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¿  Â  |  .  .  .  .  !  ^  ˘  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  «  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+à  ;  @  .  Ÿ  ñ  B  .  Ä  ó  B  .  ‹  î  B  .  .  }  D  .  ƒ  ƒ  D  .  ¥  9  E  .  `  /  E  .
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0x17C, and the stack trace (return addresses) at the time was:
+402AB7 [system.pas][System][@GetMem][2460]
+403B53 [system.pas][System][TObject.NewInstance][8292]
+403F1A [system.pas][System][@ClassCreate][8952]
+436282 [Contnrs.pas][Contnrs][TObjectList.Create]
+437422 [HelpIntfs.pas][HelpIntfs][THelpManager.Create][294]
+437305 [HelpIntfs.pas][HelpIntfs][GetHelpSystem][272]
+404B75 [system.pas][System][@NewAnsiString][11534]
+470BEE [Forms.pas][Forms][TApplication.ValidateHelpSystem][7103]
+46E7AE [Forms.pas][Forms][TApplication.Create][6109]
+403F72 [system.pas][System][@AfterConstruction][8999]
+46D0B0 [Forms.pas][Forms][TScreen.Create][5293]
+
+The block is currently used for an object of class: TObjectList
+
+The allocation number is: 197
+
+Current memory dump of 256 bytes starting at pointer address 7FF95D60:
+8C 61 43 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 06 C0 E5 7C 00 00 00 00 21 5E F9 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C7 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+88 3B 40 00 D9 96 42 00 80 97 42 00 DC 94 42 00 18 7D 44 00 C4 C4 44 00 B4 39 45 00 60 2F 45 00
+7C 01 00 00 7C 01 00 00 D7 2A 40 00 71 3B 40 00 65 3F 40 00 C3 F9 41 00 B7 3B 40 00 35 97 42 00
+4F 98 42 00 F3 4B 46 00 7E D6 40 00 2A C8 4C 00 9C DC 90 7C 10 00 00 00 84 CD 41 00 86 4F 44 02
+40 3D 4D 00 80 80 80 80 80 80 80 80 80 80 80 80 79 B0 BB FD 80 80 80 80 00 00 00 00 01 79 F9 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 00 31 2B 40 00 F3 FF 41 00 F5 FC 41 00
+F0 F9 41 00 ED 96 42 00 80 97 42 00 DC 94 42 00 18 7D 44 00 C4 C4 44 00 B4 39 45 00 60 2F 45 00
+å  a  C  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¿  Â  |  .  .  .  .  !  ^  ˘  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  «  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+à  ;  @  .  Ÿ  ñ  B  .  Ä  ó  B  .  ‹  î  B  .  .  }  D  .  ƒ  ƒ  D  .  ¥  9  E  .  `  /  E  .
+|  .  .  .  |  .  .  .  ◊  *  @  .  q  ;  @  .  e  ?  @  .  √  ˘  A  .  ∑  ;  @  .  5  ó  B  .
+O  ò  B  .  Û  K  F  .  ~  ÷  @  .  *  »  L  .  ú  ‹  ê  |  .  .  .  .  Ñ  Õ  A  .  Ü  O  D  .
+@  =  M  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  y  ∞  ª  ˝  Ä  Ä  Ä  Ä  .  .  .  .  .  y  ˘  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  »  .  .  .  1  +  @  .  Û  ˇ  A  .  ı  ¸  A  .
+  ˘  A  .  Ì  ñ  B  .  Ä  ó  B  .  ‹  î  B  .  .  }  D  .  ƒ  ƒ  D  .  ¥  9  E  .  `  /  E  .
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+A memory block has been leaked. The size is: 36
+
+This block was allocated by thread 0x17C, and the stack trace (return addresses) at the time was:
+402AB7 [system.pas][System][@GetMem][2460]
+403B53 [system.pas][System][TObject.NewInstance][8292]
+406B2D [system.pas][System][TInterfacedObject.NewInstance][17349]
+403F1A [system.pas][System][@ClassCreate][8952]
+4425E6 [WinHelpViewer.pas][WinHelpViewer][TWinHelpViewer.Create][175]
+41EBCF [classes.pas][Classes][TRegGroups.Unlock][2016]
+41F09B [classes.pas][Classes][GroupDescendentsWith][2217]
+443232 [WinHelpViewer.pas][WinHelpViewer][initialization][655]
+404720 [system.pas][System][InitUnits][10552]
+404787 [system.pas][System][@StartExe][10617]
+40719B [SysInit.pas][SysInit][@InitExe][643]
+
+The block is currently used for an object of class: TWinHelpViewer
+
+The allocation number is: 220
+
+Current memory dump of 256 bytes starting at pointer address 7FFA3BA0:
+A8 25 44 00 03 00 00 00 40 12 40 00 01 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+C0 24 44 00 8A DA F6 7C 00 00 00 00 81 3C FA 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+F0 00 00 00 B7 2A 40 00 75 4B 40 00 A0 4B 40 00 B9 6F 40 00 CC 15 45 00 46 AD 44 00 CC 15 45 00
+80 93 94 7C EA 76 92 7C 64 77 92 7C 80 93 94 7C 7C 01 00 00 7C 01 00 00 D7 2A 40 00 EA 4A 40 00
+EF 56 40 00 D2 73 4A 00 C0 46 40 00 2A C8 4C 00 9C DC 90 7C 67 70 81 7C 00 00 00 00 00 00 00 00
+00 00 00 00 22 00 00 00 00 00 00 00 FA FB C2 6E 40 3D 4D 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 05 04 3D 91 80 80 00 00 00 00 31 3D FA 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 F9 00 00 00 B7 2A 40 00 75 4B 40 00 A0 4B 40 00
+®  %  D  .  .  .  .  .  @  .  @  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+¿  $  D  .  ä  ⁄  ˆ  |  .  .  .  .  Å  <  ˙    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+  .  .  .  ∑  *  @  .  u  K  @  .  †  K  @  .  π  o  @  .  Ã  .  E  .  F  ≠  D  .  Ã  .  E  .
+Ä  ì  î  |  Í  v  í  |  d  w  í  |  Ä  ì  î  |  |  .  .  .  |  .  .  .  ◊  *  @  .  Í  J  @  .
+Ô  V  @  .  “  s  J  .  ¿  F  @  .  *  »  L  .  ú  ‹  ê  |  g  p  Å  |  .  .  .  .  .  .  .  .
+.  .  .  .  "  .  .  .  .  .  .  .  ˙  ˚  ¬  n  @  =  M  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  =  ë  Ä  Ä  .  .  .  .  1  =  ˙  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ˘  .  .  .  ∑  *  @  .  u  K  @  .  †  K  @  .
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+A memory block has been leaked. The size is: 52
+
+This block was allocated by thread 0x17C, and the stack trace (return addresses) at the time was:
+402AB7 [system.pas][System][@GetMem][2460]
+403B53 [system.pas][System][TObject.NewInstance][8292]
+406B2D [system.pas][System][TInterfacedObject.NewInstance][17349]
+403F1A [system.pas][System][@ClassCreate][8952]
+4373E2 [HelpIntfs.pas][HelpIntfs][THelpManager.Create][290]
+437305 [HelpIntfs.pas][HelpIntfs][GetHelpSystem][272]
+404B75 [system.pas][System][@NewAnsiString][11534]
+470BEE [Forms.pas][Forms][TApplication.ValidateHelpSystem][7103]
+46E7AE [Forms.pas][Forms][TApplication.Create][6109]
+403F72 [system.pas][System][@AfterConstruction][8999]
+46D0B0 [Forms.pas][Forms][TScreen.Create][5293]
+
+The block is currently used for an object of class: THelpManager
+
+The allocation number is: 194
+
+Current memory dump of 256 bytes starting at pointer address 7FFA9630:
+FC 71 43 00 01 00 00 00 40 12 40 00 00 00 00 00 20 5C F9 7F C0 5C F9 7F 60 5D F9 7F 02 00 00 00
+00 00 00 00 00 00 00 00 37 71 43 00 4F 71 43 00 B2 7E E7 7C 80 80 80 80 00 00 00 00 F1 94 FA 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 CF 00 00 00 B7 2A 40 00 53 3B 40 00 1A 3F 40 00
+88 3B 40 00 65 03 91 7C D8 D6 46 00 CB CE 37 7E 8D ED 37 7E CB CE 37 7E 8D ED 37 7E 6C D9 90 7C
+7C 01 00 00 7C 01 00 00 D7 2A 40 00 71 3B 40 00 65 3F 40 00 29 22 42 00 B7 3B 40 00 36 D1 46 00
+B7 3B 40 00 D1 77 45 00 30 7A 45 00 C0 46 40 00 2A C8 4C 00 30 00 00 00 E8 D3 41 00 B9 8C 67 76
+40 3D 4D 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 46 73 98 89 80 80 80 80 00 00 00 00 71 93 FA 7F
+¸  q  C  .  .  .  .  .  @  .  @  .  .  .  .  .     \  ˘    ¿  \  ˘    `  ]  ˘    .  .  .  .
+.  .  .  .  .  .  .  .  7  q  C  .  O  q  C  .  ≤  ~  Á  |  Ä  Ä  Ä  Ä  .  .  .  .  Ò  î  ˙  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  œ  .  .  .  ∑  *  @  .  S  ;  @  .  .  ?  @  .
+à  ;  @  .  e  .  ë  |  ÿ  ÷  F  .  À  Œ  7  ~  ç  Ì  7  ~  À  Œ  7  ~  ç  Ì  7  ~  l  Ÿ  ê  |
+|  .  .  .  |  .  .  .  ◊  *  @  .  q  ;  @  .  e  ?  @  .  )  "  B  .  ∑  ;  @  .  6  —  F  .
+∑  ;  @  .  —  w  E  .  0  z  E  .  ¿  F  @  .  *  »  L  .  0  .  .  .  Ë  ”  A  .  π  å  g  v
+@  =  M  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  F  s  ò  â  Ä  Ä  Ä  Ä  .  .  .  .  q  ì  ˙  
+
+--------------------------------2015/5/17 15:26:35--------------------------------
+This application has leaked memory. The small block leaks are (excluding expected leaks registered by pointer):
+
+13 - 20 bytes: TObjectList x 3
+21 - 36 bytes: TWinHelpViewer x 1
+37 - 52 bytes: THelpManager x 1
+
+Note: Memory leak detail is logged to a text file in the same folder as this application. To disable this memory leak check, undefine "EnableMemoryLeakReporting".

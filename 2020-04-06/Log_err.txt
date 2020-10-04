@@ -1,0 +1,33 @@
+04.04.2020 23:47:54: InitThreads begin...
+04.04.2020 23:48:12: InitThreads done.
+04.04.2020 23:48:26: Destroing modem's threads begin
+04.04.2020 23:48:34: Destroing modem's threads end
+04.04.2020 23:48:34: Destroying SyncThread begin
+04.04.2020 23:48:34: Destroying SyncThread end
+04.04.2020 23:48:34: Destroying MoveToStatssOldThread begin
+04.04.2020 23:48:34: Destroying MoveToStatssOldThread end
+04.04.2020 23:48:34: Destroying ThreadTimerWifiOff begin
+04.04.2020 23:48:34: Destroying ThreadTimerWifiOff end
+04.04.2020 23:48:38: InitThreads begin...
+04.04.2020 23:48:54: InitThreads done.
+04.04.2020 23:49:51: Destroing modem's threads begin
+04.04.2020 23:50:05: Destroing modem's threads end
+04.04.2020 23:50:05: Destroying SyncThread begin
+04.04.2020 23:50:05: Destroying SyncThread end
+04.04.2020 23:50:05: Destroying MoveToStatssOldThread begin
+04.04.2020 23:50:05: Destroying MoveToStatssOldThread end
+04.04.2020 23:50:05: Destroying ThreadTimerWifiOff begin
+04.04.2020 23:50:05: Destroying ThreadTimerWifiOff end
+04.04.2020 23:50:15: Exiting...
+05.04.2020 13:10:04: InitThreads begin...
+05.04.2020 13:57:02: InitThreads begin...
+05.04.2020 13:57:55: InitThreads done.
+05.04.2020 13:58:25: Destroing modem's threads begin
+05.04.2020 13:58:25: Destroing modem's threads end
+05.04.2020 13:58:26: Destroying SyncThread begin
+05.04.2020 13:58:27: Destroying SyncThread end
+05.04.2020 13:58:27: Destroying MoveToStatssOldThread begin
+05.04.2020 13:58:28: Destroying MoveToStatssOldThread end
+05.04.2020 13:58:28: Destroying ThreadTimerWifiOff begin
+05.04.2020 13:58:28: Destroying ThreadTimerWifiOff end
+05.04.2020 13:58:31: Exiting...

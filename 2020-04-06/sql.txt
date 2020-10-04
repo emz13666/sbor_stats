@@ -1,0 +1,1 @@
+SELECT m.id_modem, e.name, e.ip_address, e.equipment_type, e.useInMonitoring  FROM modems m, equipment e WHERE e.equipment_type<3 and e.useInMonitoring=1 and e.ip_address=m.ip_address order by e.name

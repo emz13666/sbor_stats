@@ -1,0 +1,10 @@
+
+#ignore thumbnails created by windows
+Thumbs.db
+#ignore files build by Delphi
+*.exe
+*.dcu
+*.bak
+*.~*
+*.ddp
+[Tt]emp/*
