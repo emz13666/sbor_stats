@@ -188,8 +188,17 @@ begin
                    if not fl_noping then fl := false;
                end;
              snmp.TargetHost := f_host;
-           end;
-
+           end
+               else begin
+                 if not PredvPing then
+                 begin
+                   F_level:='-100';
+                   F_AP :='00:00:00:00:00:00';
+                   f_online := '0';
+                 end
+                 else
+                   if not fl_noping then fl := false;
+               end;
     if fl then
     begin
       SaveToLocalDB;
@@ -263,7 +272,18 @@ begin
               if not fl_noping then fl := false;
            end;
          snmp.TargetHost := f_host;
-       end;
+       end
+           else begin
+             if not PredvPing then
+             begin
+               F_level:='-100';
+               F_AP :='00:00:00:00:00:00';
+               f_online := '0';
+             end
+             else
+              if not fl_noping then fl := false;
+           end;
+
     if fl then
     begin
       SaveToLocalDB;
