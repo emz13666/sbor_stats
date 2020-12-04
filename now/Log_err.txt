@@ -34,3 +34,19 @@
 15.04.2020 20:00:48: InitThreads begin...
 15.04.2020 20:01:04: InitThreads done.
 15.04.2020 20:24:44: InitThreads begin...
+04.12.2020 15:59:11: Невозможно инициализировать потоки - нет доступа к СУБД (EDatabaseError: Modems: Field 'ip_alias' not found)
+04.12.2020 15:59:12: InitThreads done.
+04.12.2020 15:59:34: Невозможно инициализировать потоки - нет доступа к СУБД (EDatabaseError: Modems: Field 'ip_alias' not found)
+04.12.2020 15:59:34: InitThreads done.
+04.12.2020 15:59:55: InitThreads begin...
+04.12.2020 16:00:10: InitThreads done.
+04.12.2020 16:00:43: Destroying My_timer_5minThread begin
+04.12.2020 16:00:43: Destroying My_timer_5minThread end
+04.12.2020 16:00:43: Destroing modem's threads begin
+04.12.2020 16:00:47: Error in DoWork_AP. Modem:EX12 (EAccessViolation: Access violation at address 005869AE in module 'Sbor_stats.exe'. Read of address 002E01EF)
+04.12.2020 16:00:57: Destroing modem's threads end
+04.12.2020 16:00:57: Destroying SyncThread begin
+04.12.2020 16:00:57: Destroying SyncThread end
+04.12.2020 16:00:57: Destroying MoveToStatssOldThread begin
+04.12.2020 16:00:57: Destroying MoveToStatssOldThread end
+04.12.2020 16:01:01: Exiting...

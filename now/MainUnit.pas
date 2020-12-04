@@ -76,6 +76,7 @@ type
     Modemsfirmware: TStringField;
     Modemsname: TStringField;
     Modemsip_address: TStringField;
+    Modemsip_alias: TStringField;
     Modemsequipment_type: TIntegerField;
     ModemsuseInMonitoring: TSmallintField;
     procedure RxTrayIcon1DblClick(Sender: TObject);
@@ -178,7 +179,7 @@ begin
 
   Modems.Close;
   try
-    Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.equipment_type,'+
+    Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_alias, e.equipment_type,'+
      ' e.useInMonitoring  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
      'e.id=m.id_equipment order by e.name';
     Modems.Open;
@@ -190,6 +191,13 @@ begin
       SetLength(myTimerThread,Length(MyTimerThread)+1);
       MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modemsip_address.AsString,edtSnmpTimeout.Value);
       MyTimerThread[high(MyTimerThread)].F_IDModem := Modemsid_modem.AsString;
+      if copy(Modemsname.AsString,1,3)='SZM' then
+      begin
+        MyTimerThread[high(MyTimerThread)].f_host_alias := Modemsip_alias.AsString;
+        MyTimerThread[high(MyTimerThread)].f_is_alias := true;
+      end
+      else
+        MyTimerThread[high(MyTimerThread)].f_is_alias := false;
       MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
       if (Modemsequipment_type.AsInteger=3) then MyTimerThread[high(MyTimerThread)].status_default := 2
         else MyTimerThread[high(MyTimerThread)].status_default := 0;

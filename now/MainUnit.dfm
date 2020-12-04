@@ -243,7 +243,8 @@ object Form1: TForm1
     SQL.Strings = (
       
         'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wd' +
-        's_peer, m.firmware, e.name, e.ip_address, e.equipment_type,'
+        's_peer, m.firmware, e.name, e.ip_address, e.ip_alias, e.equipmen' +
+        't_type,'
       
         '    e.useInMonitoring  FROM modems m, equipment e WHERE e.equipm' +
         'ent_type<=3 and e.useInMonitoring=1 and '
@@ -275,6 +276,10 @@ object Form1: TForm1
     object Modemsip_address: TStringField
       FieldName = 'ip_address'
       Size = 50
+    end
+    object Modemsip_alias: TStringField
+      FieldName = 'ip_alias'
+      Size = 15
     end
     object Modemsequipment_type: TIntegerField
       FieldName = 'equipment_type'
