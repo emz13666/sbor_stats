@@ -163,33 +163,22 @@ begin
        f_online :='1';
      end
      else
-           if f_is_alias then
+     begin
+       snmp.TargetHost := f_host_alias;
+       F_Date := FormatDateTime('dd.mm.yyyy',now);
+       F_Time := FormatDateTime('hh:nn:ss',now);
+
+           if f_is_alias and snmp.SendRequest then
            begin
-             snmp.TargetHost := f_host_alias;
-             F_Date := FormatDateTime('dd.mm.yyyy',now);
-             F_Time := FormatDateTime('hh:nn:ss',now);
-             if snmp.SendRequest then
-               begin
                    IfOfflineMore5min := false;
                    //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
                    f_offline_5min := GetTickCount;
                    F_level:=snmp.Reply.MIBGet(s1);
                    F_AP :=convert_s(snmp.Reply.MIBGet(s4));
                  f_online :='1';
-               end
-               else begin
-                 if not PredvPing then
-                 begin
-                   F_level:='-100';
-                   F_AP :='00:00:00:00:00:00';
-                   f_online := '0';
-                 end
-                 else
-                   if not fl_noping then fl := false;
-               end;
-             snmp.TargetHost := f_host;
+
            end
-               else begin
+           else begin
                  if not PredvPing then
                  begin
                    F_level:='-100';
@@ -199,6 +188,8 @@ begin
                  else
                    if not fl_noping then fl := false;
                end;
+       snmp.TargetHost := f_host;
+     end;
     if fl then
     begin
       SaveToLocalDB;
@@ -250,39 +241,31 @@ begin
        f_online :='1';
      end
      else
-       if f_is_alias then begin
-         snmp.TargetHost := f_host_alias;
-         if snmp.SendRequest then
-           begin
+     begin
+       snmp.TargetHost := f_host_alias;
+       F_Date := FormatDateTime('dd.mm.yyyy',now);
+       F_Time := FormatDateTime('hh:nn:ss',now);
+
+       if f_is_alias and snmp.SendRequest then begin
              //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
              IfOfflineMore5min := false;
              f_offline_5min := GetTickCount;
              F_level:=snmp.Reply.MIBGet(s1_new);
              F_AP :=convert_s(snmp.Reply.MIBGet(s4_new));
              f_online :='1';
-           end
-           else begin
-             if not PredvPing then
-             begin
-               F_level:='-100';
-               F_AP :='00:00:00:00:00:00';
-               f_online := '0';
-             end
-             else
-              if not fl_noping then fl := false;
-           end;
-         snmp.TargetHost := f_host;
        end
-           else begin
-             if not PredvPing then
-             begin
+       else begin
+          if not PredvPing then
+          begin
                F_level:='-100';
                F_AP :='00:00:00:00:00:00';
                f_online := '0';
-             end
-             else
+          end
+          else
               if not fl_noping then fl := false;
-           end;
+       end;
+       snmp.TargetHost := f_host;
+     end;
 
     if fl then
     begin
