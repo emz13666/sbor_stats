@@ -91,6 +91,20 @@ try
          GlobCritSect.Leave;
         end;
        end;
+
+       AQuery.SQL.Text := 'delete from stats_lte where date <= '+QuotedStr(FormatDateTime('yyyy-mm-dd',date_old))+
+                 ' LIMIT 15000';
+       try
+         AQuery.ExecSQL;
+         AQuery.Close;
+       except
+        on E:Exception do
+        begin
+         GlobCritSect.Enter;
+         SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке удаления старых данных'+' ('+E.ClassName+': '+E.Message+')');
+         GlobCritSect.Leave;
+        end;
+       end;
 finally
    AQuery.Close;
    AConn.Close;

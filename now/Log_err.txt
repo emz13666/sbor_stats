@@ -50,3 +50,31 @@
 04.12.2020 16:00:57: Destroying MoveToStatssOldThread begin
 04.12.2020 16:00:57: Destroying MoveToStatssOldThread end
 04.12.2020 16:01:01: Exiting...
+04.12.2020 18:59:26: InitThreads begin...
+04.12.2020 19:01:37: InitThreads done.
+04.12.2020 19:01:56: Destroying My_timer_5minThread begin
+04.12.2020 19:01:56: Destroying My_timer_5minThread end
+04.12.2020 19:01:56: Destroing modem's threads begin
+04.12.2020 19:01:59: Destroing modem's threads end
+04.12.2020 19:02:00: Destroying SyncThread begin
+04.12.2020 19:02:00: Destroying SyncThread end
+04.12.2020 19:02:00: Destroying MoveToStatssOldThread begin
+04.12.2020 19:02:00: Destroying MoveToStatssOldThread end
+04.12.2020 19:02:04: Exiting...
+24.04.2021 22:20:41: InitThreads begin...
+24.04.2021 22:20:46: InitThreads done.
+24.04.2021 22:24:07: Destroying My_timer_5minThread begin
+24.04.2021 22:24:07: Destroying My_timer_5minThread end
+24.04.2021 22:24:07: Destroing modem's threads begin
+24.04.2021 22:24:07: Destroing modem's threads end
+24.04.2021 22:24:07: Destroying SyncThread begin
+24.04.2021 22:24:07: Destroying SyncThread end
+24.04.2021 22:24:07: Destroying MoveToStatssOldThread begin
+24.04.2021 22:24:07: Destroying MoveToStatssOldThread end
+24.04.2021 22:24:10: Exiting...
+04.08.2021 21:40:55: InitThreads begin...
+04.08.2021 21:45:43: InitThreads begin...
+04.08.2021 21:46:36: Error in SaveToLocalDB. Modem:A500 (EDatabaseError: statss_local: Dataset not in edit or insert mode)
+04.08.2021 21:47:34: InitThreads begin...
+04.08.2021 21:49:11: InitThreads begin...
+04.08.2021 21:50:16: InitThreads done.

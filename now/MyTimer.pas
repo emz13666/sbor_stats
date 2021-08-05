@@ -12,6 +12,8 @@ type
     F_AP: AnsiString;
     F_Date: AnsiString;
     F_Time: AnsiString;
+    F_Datetime: TDateTime;
+    F_rsrp, F_rsrq, F_sinr: AnsiString;
     f_online: AnsiString;
     f_offline_5min: Cardinal;
     f_loadavg: AnsiString;
@@ -24,9 +26,12 @@ type
     Procedure DoWork;
     Procedure DoWork_new;//for new mibs
     Procedure DoWork_AP;
+    Procedure DoWork_LTE;
     Procedure DoWork_AP_Repeater;
     procedure WriteToForm;
+    procedure WriteToForm_lte;
     procedure SaveToLocalDB;
+    procedure SaveToLocalDB_LTE;
     procedure WriteToForm_AP;
     procedure SaveToLocalDB_AP;
     procedure Execute; override;
@@ -40,8 +45,10 @@ type
     f_is_alias: boolean;
     f_host_alias: AnsiString;
     F_IDModem: AnsiString;
+    f_idEquipment: AnsiString;
     status_default: byte;
     f_is_access_point: boolean;
+    f_is_lte: boolean;
     f_is_ap_repeater: boolean;
     f_is_collect_net_stat: boolean;
     F_mac_wds_peer: string;
@@ -76,7 +83,9 @@ const
    s4_rx_octets_eth0='1.3.6.1.2.1.2.2.1.10.2';//eth0: The total number of octets received on the interface, including framing characters.
    s5_tx_octets_eth0='1.3.6.1.2.1.2.2.1.16.2';//eth0: The total number of octets transmitted out of the interface, including framing characters.
 
-
+   s_rsrq_lte='1.3.6.1.4.1.14988.1.1.16.1.1.3.1';//RSRQ
+   s_rsrp_lte='1.3.6.1.4.1.14988.1.1.16.1.1.4.1';//RSRP
+   s_sinr_lte='1.3.6.1.4.1.14988.1.1.16.1.1.7.1';//SINR
 
 implementation
 
@@ -480,6 +489,72 @@ begin
 end;
 
 
+procedure TMyTimerThread.DoWork_LTE;
+var
+   fl: boolean;
+   fl_noping: boolean;
+begin
+ snmp.Query.Clear;
+ fl := true;
+ fl_noping := false;
+ try
+       snmp.Query.Community:='ubnt_mlink54';
+       snmp.Query.PDUType := PDUGetRequest;
+       snmp.Query.MIBAdd(s_rsrq_lte,'',ASN1_NULL);
+       snmp.Query.MIBAdd(s_rsrp_lte,'',ASN1_NULL);
+       snmp.Query.MIBAdd(s_sinr_lte,'',ASN1_NULL);
+
+   F_Date := FormatDateTime('dd.mm.yyyy',now);
+   F_Time := FormatDateTime('hh:nn:ss',now);
+   F_Datetime := now;
+
+   if PredvPing then
+     if PingHost(f_host)=-1 then begin
+       F_rsrp:='-150';
+       F_rsrq :='-50';
+       F_sinr := '-10';
+       fl_noping := true;
+      end;
+
+   if snmp.SendRequest then
+     begin
+       //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
+       IfOfflineMore5min := false;
+       f_offline_5min := GetTickCount;
+       F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte);
+       F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte);
+       F_sinr := snmp.Reply.MIBGet(s_sinr_lte);
+       f_online :='1';
+     end
+     else
+     begin
+          if not PredvPing then
+          begin
+               F_rsrp:='-150';
+               F_rsrq :='-50';
+               F_sinr := '-10';
+               f_online := '0';
+          end
+          else
+              if not fl_noping then fl := false;
+     end;
+
+    if fl then
+    begin
+      SaveToLocalDB_LTE;
+      Synchronize(WriteToForm_lte);
+    end;
+
+ except
+   on E : Exception do
+   begin
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Error in DoWork_LTE. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+   end;
+ end;
+end;
+
 procedure TMyTimerThread.Execute;
 var begin_tick, timer_5_min: cardinal;
 begin
@@ -499,9 +574,12 @@ begin
         if f_new then
           DoWork_new
         else
+         if f_is_lte then
+             DoWork_LTE
+         else
           DoWork;
      if not (f_is_access_point or f_is_ap_repeater) and f_is_collect_net_stat  then
-       DoWork_AP;
+       if not f_is_lte then DoWork_AP;
 
     //если устройство офлайн больше 5 минут то мониторить раз в 1 минуту
     //sleep 60 sec
@@ -587,6 +665,34 @@ begin
      end;
 end;
 
+procedure TMyTimerThread.SaveToLocalDB_LTE;
+begin
+  if (F_rsrp='')or(F_rsrq='') then exit;
+  if (F_sinr='') then exit;
+  GlobCritSect.Enter;
+  with form1 do
+     try
+         if not stats_lte.Active then stats_lte.Active := true;
+         stats_lte.Last;
+         stats_lte.Insert;
+         stats_lteid_equipment.AsInteger := StrToInt(f_idEquipment);
+         stats_ltedate.AsString := F_Date;
+         stats_ltetime.AsString := F_Time;
+         stats_ltedatetime.AsDateTime := F_Datetime;
+         stats_ltesignal_rsrp.AsInteger := StrToInt(F_rsrp);
+         stats_ltesignal_rsrq.AsInteger := StrToInt(F_rsrq);
+         stats_ltesignal_sinr.AsInteger := StrToInt(F_sinr);
+         stats_lte.Post;
+         GlobCritSect.Leave;
+     except
+      on E:Exception do
+      begin
+      SaveLogToFile(LogFileName,'Error in SaveToLocalDB. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+      end;
+     end;
+end;
+
 procedure TMyTimerThread.WriteToForm;
 begin
   try
@@ -606,6 +712,17 @@ begin
   except
    on E:Exception do
       SaveLogToFile(LogFileName,'Ошибка в WriteToForm_AP. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+  end;
+end;
+
+procedure TMyTimerThread.WriteToForm_lte;
+begin
+  try
+   if not Form1.RxTrayIcon1.Visible then
+    Form1.Label9.Caption:=IntToStr(Form1.stats_lte.RecordCount);
+  except
+   on E:Exception do
+    SaveLogToFile(LogFileName,'Error in WriteToForm_lte. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
   end;
 end;
 

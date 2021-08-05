@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 371
   Top = 188
   Caption = #1057#1073#1086#1088' '#1089#1090#1072#1090#1080#1089#1090#1080#1082#1080' Ubiquiti'
-  ClientHeight = 410
+  ClientHeight = 435
   ClientWidth = 753
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -73,11 +73,18 @@ object Form1: TForm1
   end
   object Label8: TLabel
     Left = 11
-    Top = 374
+    Top = 398
     Width = 92
     Height = 13
     Caption = #1055#1077#1088#1080#1086#1076' '#1086#1087#1088#1086#1089#1072', '#1089':'
     WordWrap = True
+  end
+  object Label9: TLabel
+    Left = 121
+    Top = 368
+    Width = 6
+    Height = 13
+    Caption = '0'
   end
   object Button1: TButton
     Left = 494
@@ -185,7 +192,7 @@ object Form1: TForm1
   end
   object edtPeriodOprosa: TSpinEdit
     Left = 109
-    Top = 371
+    Top = 395
     Width = 49
     Height = 22
     MaxValue = 0
@@ -454,5 +461,35 @@ object Form1: TForm1
     Provider = 'MSDASQL.1'
     Left = 473
     Top = 16
+  end
+  object stats_lte: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 320
+    Top = 144
+    object stats_lteid: TAutoIncField
+      FieldName = 'id'
+    end
+    object stats_lteid_equipment: TLargeintField
+      FieldName = 'id_equipment'
+    end
+    object stats_ltedate: TDateField
+      FieldName = 'date'
+    end
+    object stats_ltetime: TTimeField
+      FieldName = 'time'
+    end
+    object stats_ltedatetime: TDateTimeField
+      FieldName = 'datetime'
+    end
+    object stats_ltesignal_rsrp: TIntegerField
+      FieldName = 'signal_rsrp'
+    end
+    object stats_ltesignal_rsrq: TIntegerField
+      FieldName = 'signal_rsrq'
+    end
+    object stats_ltesignal_sinr: TIntegerField
+      FieldName = 'signal_sinr'
+    end
   end
 end

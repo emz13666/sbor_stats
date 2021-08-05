@@ -124,6 +124,7 @@ begin
     for i := 0 to high(MyTimerThread) do
       if (not Terminated) and Assigned(MyTimerThread[i]) then
       begin
+        if MyTimerThread[i].f_is_lte then Continue;
         AQuery.Close;
         AQuery.SQL.Text := 'select * from modems where id_modem='+MyTimerThread[i].F_IDModem;
         AQuery.Open;

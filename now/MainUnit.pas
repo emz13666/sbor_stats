@@ -79,6 +79,16 @@ type
     Modemsip_alias: TStringField;
     Modemsequipment_type: TIntegerField;
     ModemsuseInMonitoring: TSmallintField;
+    stats_lte: TClientDataSet;
+    stats_lteid: TAutoIncField;
+    stats_lteid_equipment: TLargeintField;
+    stats_ltedate: TDateField;
+    stats_ltetime: TTimeField;
+    stats_ltedatetime: TDateTimeField;
+    stats_ltesignal_rsrp: TIntegerField;
+    stats_ltesignal_rsrq: TIntegerField;
+    stats_ltesignal_sinr: TIntegerField;
+    Label9: TLabel;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -146,8 +156,14 @@ begin
   stats_ap_local.FileName :=ExtractFilePath(Application.ExeName)+'statss_ap_local.cds';
   stats_ap_local.Open;
   stats_ap_local.LogChanges := false;
+
+  stats_lte.FileName := ExtractFilePath(Application.ExeName)+'stats_lte.cds';
+  stats_lte.Open;
+  stats_lte.LogChanges := false;
+
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
+  Label9.Caption := IntToStr(stats_lte.RecordCount);
   RxTrayIcon1.Visible := true;
   Application.OnMinimize := Hide_appl;
 
@@ -220,6 +236,36 @@ begin
       Modems.Next;
     end;
     modems.Close;
+    Query.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn,'+
+     ' e.useInMonitoring  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
+     'e.id=l.id_equipment order by e.name';
+    Query.Open;
+    Query.First;
+    while not Query.Eof do
+    begin
+      SetLength(myTimerThread,Length(MyTimerThread)+1);
+      MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_vpn').AsString,edtSnmpTimeout.Value);
+      MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id_equipment').AsString;
+      MyTimerThread[high(MyTimerThread)].f_is_lte := true;
+      MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+      MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
+      MyTimerThread[high(MyTimerThread)].f_new := false;
+      MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+      MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+      MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+      MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+      MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+      MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+      MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
+      MyTimerThread[high(MyTimerThread)].Start;
+      sleep(8);
+      Application.ProcessMessages;
+      Sleep(random(80));
+      Application.ProcessMessages;
+      Query.Next;
+    end;
+    Query.Close;
+
   except
     on E:Exception do
     begin
@@ -270,6 +316,7 @@ begin
 //  statss_local.SaveToFile;
   statss_local.Close;
   stats_ap_local.Close;
+  stats_lte.Close;
   FreeAndNil(GlobCritSect);
   except
     on E:Exception do SaveLogToFile(LogFileName,'Error in destroying threads. ('+E.ClassName+': '+E.Message+')');
@@ -294,15 +341,21 @@ procedure TForm1.Button33Click(Sender: TObject);
 begin
   if not statss_local.Active then statss_local.Open;
   if not stats_ap_local.Active then stats_ap_local.Open;
+  if not stats_lte.Active then stats_lte.Open;
 
   statss_local.EmptyDataSet;
   stats_ap_local.EmptyDataSet;
+  stats_lte.EmptyDataSet;
+
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
+  Label9.Caption := IntToStr(stats_lte.RecordCount);
   statss_local.SaveToFile();
   stats_ap_local.SaveToFile();
+  stats_lte.SaveToFile();
   statss_local.Close;
   stats_ap_local.Close;
+  stats_lte.Close;
 //  statss_local.LoadFromFile;
 
 end;
@@ -388,6 +441,7 @@ procedure TForm1.Button5Click(Sender: TObject);
 begin
   statss_local.Close;
   stats_ap_local.Close;
+  stats_lte.Close;
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);
