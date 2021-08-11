@@ -8,3 +8,6 @@ Thumbs.db
 *.~*
 *.ddp
 [Tt]emp/*
+/*/Log_err.txt
+!now/Sbor_stats.exe
+/now/Log_err.txt

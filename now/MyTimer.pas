@@ -8,6 +8,8 @@ type
   private
     { Private declarations }
     IfOfflineMore5min: boolean;
+    F_IndexInterfaceLTEOk: boolean; //Определили или нет индекс интерфейса LTE. Вначале работы потока - нет. Определяем 1 раз при доступности устройства.
+    F_IndexInterfaceLTE: Integer;
     F_level: AnsiString;
     F_AP: AnsiString;
     F_Date: AnsiString;
@@ -83,9 +85,9 @@ const
    s4_rx_octets_eth0='1.3.6.1.2.1.2.2.1.10.2';//eth0: The total number of octets received on the interface, including framing characters.
    s5_tx_octets_eth0='1.3.6.1.2.1.2.2.1.16.2';//eth0: The total number of octets transmitted out of the interface, including framing characters.
 
-   s_rsrq_lte='1.3.6.1.4.1.14988.1.1.16.1.1.3.1';//RSRQ
-   s_rsrp_lte='1.3.6.1.4.1.14988.1.1.16.1.1.4.1';//RSRP
-   s_sinr_lte='1.3.6.1.4.1.14988.1.1.16.1.1.7.1';//SINR
+   s_rsrq_lte='1.3.6.1.4.1.14988.1.1.16.1.1.3';// + '.ifIndexLte' - RSRQ
+   s_rsrp_lte='1.3.6.1.4.1.14988.1.1.16.1.1.4';//+ '.ifIndexLte' - RSRP
+   s_sinr_lte='1.3.6.1.4.1.14988.1.1.16.1.1.7';//+ + '.ifIndexLte' - SINR
 
 implementation
 
@@ -493,16 +495,40 @@ procedure TMyTimerThread.DoWork_LTE;
 var
    fl: boolean;
    fl_noping: boolean;
+   i: byte;
+const
+   ifIndex = '1.3.6.1.2.1.2.2.1.1';
+   ifIndexDescr = '1.3.6.1.2.1.2.2.1.2';
 begin
- snmp.Query.Clear;
  fl := true;
  fl_noping := false;
  try
+   if not F_IndexInterfaceLTEOk then begin
+   // Сначала надо определить индекс интерфейса LTE. Для этого запросим все 5 интерфейсов и их описания:
+       snmp.Query.Clear;
        snmp.Query.Community:='ubnt_mlink54';
        snmp.Query.PDUType := PDUGetRequest;
-       snmp.Query.MIBAdd(s_rsrq_lte,'',ASN1_NULL);
-       snmp.Query.MIBAdd(s_rsrp_lte,'',ASN1_NULL);
-       snmp.Query.MIBAdd(s_sinr_lte,'',ASN1_NULL);
+       for i:=1 to 5 do begin
+         snmp.Query.MIBAdd(ifIndex +'.'+IntToStr(i),'',ASN1_NULL);
+         snmp.Query.MIBAdd(ifIndexDescr +'.'+IntToStr(i),'',ASN1_NULL);
+       end;
+       if snmp.SendRequest then
+       begin
+         i := 1;
+         while (i <= 5 )and(copy(snmp.Reply.MIBGet(ifIndexDescr+'.'+IntToStr(i)),1,3)<>'lte') do inc (i);
+         if i <= 5 then begin
+           F_IndexInterfaceLTEOk := true;
+           F_IndexInterfaceLTE := StrToInt(snmp.Reply.MIBGet(ifIndex+'.'+IntToStr(i)));
+         end;
+       end;
+   end;
+// Выполняем запрос с учётом найденного индекса (при инициализации потока index=1)
+   snmp.Query.Clear;
+   snmp.Query.Community:='ubnt_mlink54';
+   snmp.Query.PDUType := PDUGetRequest;
+   snmp.Query.MIBAdd(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+   snmp.Query.MIBAdd(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+   snmp.Query.MIBAdd(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
 
    F_Date := FormatDateTime('dd.mm.yyyy',now);
    F_Time := FormatDateTime('hh:nn:ss',now);
@@ -521,9 +547,9 @@ begin
        //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
        IfOfflineMore5min := false;
        f_offline_5min := GetTickCount;
-       F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte);
-       F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte);
-       F_sinr := snmp.Reply.MIBGet(s_sinr_lte);
+       F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE));
+       F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE));
+       F_sinr := snmp.Reply.MIBGet(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE));
        f_online :='1';
      end
      else
@@ -559,6 +585,8 @@ procedure TMyTimerThread.Execute;
 var begin_tick, timer_5_min: cardinal;
 begin
   { Place thread code here }
+  F_IndexInterfaceLTEOk := false;
+  F_IndexInterfaceLTE := 1;
   f_offline_5min := GetTickCount;
   timer_5_min := GetTickCount;
   IfOfflineMore5min := false;
