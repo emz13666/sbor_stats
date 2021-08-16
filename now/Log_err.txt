@@ -1,0 +1,67 @@
+16.08.2021 15:27:35: InitThreads begin...
+16.08.2021 15:27:43: InitThreads done.
+16.08.2021 15:28:04: Destroying My_timer_5minThread begin
+16.08.2021 15:28:04: Destroying My_timer_5minThread end
+16.08.2021 15:28:04: Destroing modem's threads begin
+16.08.2021 15:28:06: Error in DoWork. Modem:A119 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:06: Error in DoWork. Modem:A126 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:10: Error in DoWork_AP. Modem:A136 (EListError: List index out of bounds (2))
+16.08.2021 15:28:17: Error in DoWork_new. Modem:SZM131 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:17: Error in DoWork_new. Modem:SZM132 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:17: Error in DoWork_new. Modem:SZM133 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:17: Error in DoWork_new. Modem:SZM134 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:28:25: Destroing modem's threads end
+16.08.2021 15:28:25: Destroying SyncThread begin
+16.08.2021 15:28:25: Destroying SyncThread end
+16.08.2021 15:28:25: Destroying MoveToStatssOldThread begin
+16.08.2021 15:28:25: Destroying MoveToStatssOldThread end
+16.08.2021 15:28:25: Exiting...
+16.08.2021 15:34:51: InitThreads begin...
+16.08.2021 15:34:58: InitThreads done.
+16.08.2021 15:37:53: Destroying My_timer_5minThread begin
+16.08.2021 15:37:53: Destroying My_timer_5minThread end
+16.08.2021 15:37:53: Destroing modem's threads begin
+16.08.2021 15:37:57: Error in DoWork. Modem:A139 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:37:58: Error in DoWork. Modem:A151 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 15:38:08: Destroing modem's threads end
+16.08.2021 15:38:08: Destroying SyncThread begin
+16.08.2021 15:38:08: Destroying SyncThread end
+16.08.2021 15:38:08: Destroying MoveToStatssOldThread begin
+16.08.2021 15:38:08: Destroying MoveToStatssOldThread end
+16.08.2021 15:38:11: Exiting...
+16.08.2021 15:43:30: InitThreads begin...
+16.08.2021 15:44:26: InitThreads done.
+16.08.2021 15:45:02: Destroying My_timer_5minThread begin
+16.08.2021 15:45:02: Destroying My_timer_5minThread end
+16.08.2021 15:45:02: Destroing modem's threads begin
+16.08.2021 15:45:06: Error in DoWork_new. Modem:A133 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 20:29:42: InitThreads begin...
+16.08.2021 20:30:35: InitThreads done.
+16.08.2021 20:30:55: Destroying My_timer_5minThread begin
+16.08.2021 20:30:55: Destroying My_timer_5minThread end
+16.08.2021 20:30:55: Destroing modem's threads begin
+16.08.2021 20:31:01: Error in DoWork. Modem:A138 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 20:31:04: Error in DoWork. Modem:A151 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 20:31:07: Error in DoWork_new. Modem:A161 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 20:31:21: Error in DoWork_new. Modem:EX129 (EAccessViolation: Access violation at address 00406A44 in module 'Sbor_stats.exe'. Read of address 002E002D)
+16.08.2021 20:31:32: Destroing modem's threads end
+16.08.2021 20:31:32: Destroying SyncThread begin
+16.08.2021 20:31:32: Destroying SyncThread end
+16.08.2021 20:31:32: Destroying MoveToStatssOldThread begin
+16.08.2021 20:31:33: Destroying MoveToStatssOldThread end
+16.08.2021 20:31:33: Exiting...
+16.08.2021 22:10:24: InitThreads begin...
+16.08.2021 22:11:21: InitThreads done.
+16.08.2021 22:12:38: Destroying My_timer_5minThread begin
+16.08.2021 22:12:38: Destroying My_timer_5minThread end
+16.08.2021 22:12:38: Destroing modem's threads begin
+16.08.2021 22:12:45: Error in DoWork_AP. Modem:A151 (EAccessViolation: Access violation at address 00406A44 in module 'Sbor_stats.exe'. Read of address 00340030)
+16.08.2021 22:12:47: Error in DoWork_AP. Modem:BVU_GARAGE_Bullet (EAccessViolation: Access violation at address 0043D019 in module 'Sbor_stats.exe'. Read of address 00000000)
+16.08.2021 22:12:53: Error in DoWork. Modem:EX143 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 22:13:00: Error in DoWork. Modem:EX451 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+16.08.2021 22:13:23: Destroing modem's threads end
+16.08.2021 22:13:23: Destroying SyncThread begin
+16.08.2021 22:13:23: Destroying SyncThread end
+16.08.2021 22:13:23: Destroying MoveToStatssOldThread begin
+16.08.2021 22:13:23: Destroying MoveToStatssOldThread end
+16.08.2021 22:13:23: Exiting...

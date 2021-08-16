@@ -8,14 +8,17 @@ type
   private
     { Private declarations }
     rec_count_local_statss,rec_count_local_statss_ap,
-    rec_count_local_stats_lte : longint;
+    rec_count_local_stats_lte, rec_count_local_stats_ping : longint;
     id_statss_local, id_modem_statss_local,
-    id_equipment_lte : longint;
-    rsrq, rsrp, sinr: integer;
+    id_equip_statss_local,
+    id_equipment_lte, id_equipment_ping : longint;
+    rsrq, rsrp, sinr, time_ping: integer;
     loadavg, memfree: AnsiString;
     rx_octets_eth0, tx_octets_eth0: AnsiString;
     mac_ap_statss_local: AnsiString;
-    date_statss_local, datetime_lte, time_statss_local: TDateTime;
+    date_statss_local, time_statss_local: TDateTime;
+    datetime_lte, date_lte, time_lte: TDateTime;
+    datetime_ping, date_ping, timeOfPing: TDateTime;
     sig_lev_statss_local, f_online_statss_local,f_status: integer;
     AQuery: TADOQuery;
     AConn: TADOConnection;
@@ -23,25 +26,30 @@ type
     Procedure DoWork;
     Procedure DoWork_ap;
     Procedure DoWork_lte;
+    Procedure DoWork_ping;
     procedure GetCountLocalStatss;
     procedure GetCountLocalStatss_ap;
     procedure GetCountLocalStatss_lte;
+    procedure GetCountLocalStatss_ping;
     procedure GetStatss_local;
     procedure GetStats_ap_local;
     procedure GetStats_lte_local;
+    procedure GetStats_ping_local;
     procedure PutToMySQL;
     procedure PutToMySQL_AP;
     procedure PutToMySQL_LTE;
+    procedure PutToMySQL_ping;
     procedure DeleteFromStatsLocal;
     procedure DeleteFromStatsLocal_ap;
     procedure DeleteFromStatsLocal_lte;
+    procedure DeleteFromStatsLocal_ping;
     procedure Execute; override;
   public
     constructor Create(CreateSuspended: Boolean);
     destructor Destroy; override;
   end;
 
-var flag_ok, flag_ok_ap: boolean;
+var flag_ok, flag_ok_ap, flag_ok_lte, flag_ok_ping: boolean;
 
 
 implementation
@@ -127,6 +135,24 @@ begin
  end;
 end;
 
+procedure TMySyncThread.DeleteFromStatsLocal_ping;
+begin
+ GlobCritSect.Enter;
+ try
+    Form1.stats_ping.First;
+    if Form1.stats_ping.Locate('id',id_statss_local,[]) then begin
+      Form1.stats_ping.Delete;
+    end;
+    GlobCritSect.Leave;
+ except
+  on E:Exception do
+  begin
+    SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal_ping. id:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    GlobCritSect.Leave;
+  end;
+ end;
+end;
+
 destructor TMySyncThread.Destroy;
 begin
    AQuery.Close;AQuery.Connection := nil;
@@ -176,8 +202,23 @@ begin
        GetStats_lte_local;
        // закомментировано для отладки
        PutToMySQL_LTE;
-       if flag_ok then DeleteFromStatsLocal_lte;
+       if flag_ok_lte then DeleteFromStatsLocal_lte;
        GetCountLocalStatss_lte;
+    end;
+end;
+
+procedure TMySyncThread.DoWork_ping;
+var t1: cardinal;
+begin
+  t1 := GetTickCount;
+  GetCountLocalStatss_ping;
+  while (rec_count_local_stats_ping>0)and(GetTickCount-t1 < 15000) do
+    begin
+       GetStats_ping_local;
+       // закомментировано для отладки
+       PutToMySQL_ping;
+       if flag_ok_ping then DeleteFromStatsLocal_ping;
+       GetCountLocalStatss_ping;
     end;
 end;
 
@@ -189,6 +230,7 @@ begin
    DoWork;
    DoWork_ap;
    DoWork_lte;
+   DoWork_ping;
    begin_tick := GetTickCount;
     while GetTickCount - begin_tick < 5000 do
       if not Terminated then sleep(10) else break;
@@ -261,6 +303,28 @@ begin
   end;
 end;
 
+procedure TMySyncThread.GetCountLocalStatss_ping;
+begin
+  GlobCritSect.Enter;
+  try
+    if not Form1.stats_ping.Active then Form1.stats_ping.Open;
+    rec_count_local_stats_ping := Form1.stats_ping.RecordCount;
+    if rec_count_local_stats_ping=0 then begin
+      form1.stats_ping.EmptyDataSet;
+      form1.stats_ping.SaveToFile();
+      form1.stats_ping.Close;
+      form1.stats_ping.Open;
+    end;
+    GlobCritSect.Leave;
+  except
+    on E:Exception do
+    begin
+      SaveLogToFile(LogFileName,'Ошибка при выполнении GetCountLocalStatss_ping в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+    end;
+  end;
+end;
+
 procedure TMySyncThread.GetStatss_local;
 begin
   GlobCritSect.Enter;
@@ -270,6 +334,7 @@ begin
     statss_local.Last;
     id_statss_local := statss_localid.AsInteger;
     id_modem_statss_local := statss_localid_modem.AsInteger;
+    id_equip_statss_local := statss_localid_equipment.AsInteger;
     sig_lev_statss_local := statss_localsignal_level.AsInteger;
     if sig_lev_statss_local=-100 then f_online_statss_local:=0 else f_online_statss_local:=1;
     date_statss_local := statss_localdate.AsDateTime;
@@ -295,6 +360,7 @@ begin
     stats_ap_local.Last;
     id_statss_local := stats_ap_localid.AsInteger;
     id_modem_statss_local := stats_ap_localid_modem.AsInteger;
+    id_equip_statss_local := stats_ap_localid_equipment.AsInteger;
     sig_lev_statss_local := stats_ap_localsignal_level.AsInteger;
     if sig_lev_statss_local=-100 then f_online_statss_local:=0 else f_online_statss_local:=1;
     date_statss_local := stats_ap_localDate.AsDateTime;
@@ -330,9 +396,33 @@ begin
     rsrp := stats_ltesignal_rsrp.AsInteger;
     sinr := stats_ltesignal_sinr.AsInteger;
 
-    date_statss_local := stats_ltedate.AsDateTime;
-    time_statss_local := stats_ltetime.AsDateTime;
+    date_lte := stats_ltedate.AsDateTime;
+    time_lte := stats_ltetime.AsDateTime;
     datetime_lte := stats_ltedatetime.AsDateTime;
+    GlobCritSect.Leave;
+  except
+   on E:Exception do
+   begin
+    SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_lte в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    GlobCritSect.Leave;
+   end;
+  end;
+end;
+
+procedure TMySyncThread.GetStats_ping_local;
+begin
+  GlobCritSect.Enter;
+  with form1 do
+  try
+    if not stats_ping.Active then stats_ping.Open;
+    stats_ping.Last;
+    id_statss_local := stats_pingid.AsInteger;
+    id_equipment_ping := stats_pingid_equipment.AsInteger;
+    time_ping := stats_pingtime_ping.AsInteger;
+
+    date_ping := stats_pingDate.AsDateTime;
+    timeOfPing := stats_pingTime.AsDateTime;
+    datetime_ping := stats_pingDatetime.AsDateTime;
     GlobCritSect.Leave;
   except
    on E:Exception do
@@ -347,8 +437,9 @@ procedure TMySyncThread.PutToMySQL;
 begin
  try
   AQuery.Close;
-  AQuery.SQL.Text := 'Insert into statss(id_modem, date, mac_ap,signal_level, time, status) values('+
+  AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, status) values('+
             IntToStr(id_modem_statss_local)+','+
+            IntToStr(id_equip_statss_local)+','+
             QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
             QuotedStr(mac_ap_statss_local)+','+
             QuotedStr(IntToStr(sig_lev_statss_local))+','+
@@ -393,8 +484,9 @@ procedure TMySyncThread.PutToMySQL_AP;
 begin
  try
   AQuery.Close;
-  AQuery.SQL.Text := 'Insert into stats_ap(id_modem, date, signal_level, time, loadavg, memfree, rx_octets_eth0, tx_octets_eth0) values('+
+  AQuery.SQL.Text := 'Insert into stats_ap(id_modem, id_equipment, date, signal_level, time, loadavg, memfree, rx_octets_eth0, tx_octets_eth0) values('+
             IntToStr(id_modem_statss_local)+','+
+            IntToStr(id_equip_statss_local)+','+
             QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
             QuotedStr(IntToStr(sig_lev_statss_local))+','+
             QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local))+','+
@@ -427,24 +519,71 @@ begin
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into stats_lte(id_equipment, date, time, datetime, signal_rsrp, signal_rsrq, signal_sinr) values('+
             IntToStr(id_equipment_lte)+','+
-            QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
-            QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local))+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd',date_lte))+','+
+            QuotedStr(FormatDateTime('hh:nn:ss',time_lte))+','+
             QuotedStr(FormatDateTime('yyy-mm-dd hh:nn:ss',datetime_lte))+','+
             IntToStr(rsrp) + ',' +
             IntToStr(rsrq) + ',' +
             IntToStr(sinr) + ')';
-    flag_ok_ap := true;
+    flag_ok_lte := true;
     try
       AQuery.ExecSQL;
     except
      on E:Exception do
      begin
-      flag_ok_ap := false;
+      flag_ok_lte := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
       GlobCritSect.Leave;
      end;
     end;
+ finally
+   AQuery.Close;
+   AConn.Close;
+ end;
+end;
+
+procedure TMySyncThread.PutToMySQL_ping;
+var
+  f_onl: integer;
+begin
+ try
+  AQuery.Close;
+  AQuery.SQL.Text := 'Insert into stats_ping(id_equipment, date, time, datetime, time_ping) values('+
+            IntToStr(id_equipment_ping)+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd',date_ping))+','+
+            QuotedStr(FormatDateTime('hh:nn:ss',timeOfPing))+','+
+            QuotedStr(FormatDateTime('yyy-mm-dd hh:nn:ss',datetime_ping))+','+
+            IntToStr(time_ping) + ')';
+    flag_ok_ping := true;
+    try
+      AQuery.ExecSQL;
+    except
+     on E:Exception do
+     begin
+      flag_ok_ping := false;
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+     end;
+    end;
+
+    AQuery.Close;
+    if time_ping >=0 then f_onl := 1 else f_onl := 0;
+    AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_equipment='+IntToStr(id_equipment_ping);
+    flag_ok_ping := true;
+    try
+      AQuery.ExecSQL;
+    except
+     on E:Exception do
+     begin
+      flag_ok_ping := false;
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+     end;
+    end;
+
  finally
    AQuery.Close;
    AConn.Close;

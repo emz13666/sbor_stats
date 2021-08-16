@@ -14,6 +14,7 @@ type
     F_AP: AnsiString;
     F_Date: AnsiString;
     F_Time: AnsiString;
+    F_time_ping: Integer;
     F_Datetime: TDateTime;
     F_rsrp, F_rsrq, F_sinr: AnsiString;
     f_online: AnsiString;
@@ -29,11 +30,14 @@ type
     Procedure DoWork_new;//for new mibs
     Procedure DoWork_AP;
     Procedure DoWork_LTE;
+    Procedure DoWork_ping;
     Procedure DoWork_AP_Repeater;
     procedure WriteToForm;
     procedure WriteToForm_lte;
+    procedure WriteToForm_ping;
     procedure SaveToLocalDB;
     procedure SaveToLocalDB_LTE;
+    procedure SaveToLocalDB_ping;
     procedure WriteToForm_AP;
     procedure SaveToLocalDB_AP;
     procedure Execute; override;
@@ -50,6 +54,7 @@ type
     f_idEquipment: AnsiString;
     status_default: byte;
     f_is_access_point: boolean;
+    f_is_work_of_ping: boolean;
     f_is_lte: boolean;
     f_is_ap_repeater: boolean;
     f_is_collect_net_stat: boolean;
@@ -295,8 +300,49 @@ begin
 end;
 
 
+procedure TMyTimerThread.DoWork_ping;
+begin
+ try
+
+   F_Date := FormatDateTime('dd.mm.yyyy',now);
+   F_Time := FormatDateTime('hh:nn:ss',now);
+   F_Datetime := now;
+   F_time_ping := PingHost(f_host);
+   if F_time_ping = -1 then F_time_ping := -100;
+   if F_time_ping <>-100 then begin
+       IfOfflineMore5min := false;
+       f_offline_5min := GetTickCount;
+       f_online := '1';
+   end
+   else begin
+     if f_is_alias then F_time_ping := PingHost(f_host_alias);
+     if F_time_ping = -1 then F_time_ping := -100;
+     if f_is_alias and (F_time_ping<>-100) then begin
+       IfOfflineMore5min := false;
+       f_offline_5min := GetTickCount;
+       f_online := '1';
+     end
+     else begin
+       f_online := '0';
+     end;
+   end;
+
+   SaveToLocalDB_ping;
+   Synchronize(WriteToForm_ping);
+
+ except
+   on E : Exception do
+   begin
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Error in DoWork_new. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      GlobCritSect.Leave;
+   end;
+ end;
+end;
+
 procedure TMyTimerThread.DoWork_AP;
 var    fl_noping: boolean;
+      // CurrentTick: Cardinal;
 begin
    snmp.Query.Clear;
    f_online := '1';
@@ -318,9 +364,10 @@ begin
            f_online := '0';
            fl_noping := true;
        end;
-
+       //CurrentTick := GetTickCount;
        if snmp.SendRequest then
          begin
+//           CurrentTick := GetTickCount - CurrentTick;
            //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
            IfOfflineMore5min:=false;
            f_offline_5min := GetTickCount;
@@ -594,18 +641,22 @@ begin
   f_lasttickcount_tx := 0;
   f_lasttickcount_rx := 0;
   repeat
-     if f_is_ap_repeater  then DoWork_AP_Repeater
+     if f_is_ap_repeater  then
+       DoWork_AP_Repeater
      else
-      if f_is_access_point then
-        DoWork_AP
-      else
-        if f_new then
-          DoWork_new
-        else
-         if f_is_lte then
-             DoWork_LTE
+       if f_is_access_point then
+         DoWork_AP
+       else
+         if f_new then
+           DoWork_new
          else
-          DoWork;
+           if f_is_lte then
+             DoWork_LTE
+           else
+             if f_is_work_of_ping then
+               DoWork_ping
+             else
+               DoWork;
      if not (f_is_access_point or f_is_ap_repeater) and f_is_collect_net_stat  then
        if not f_is_lte then DoWork_AP;
 
@@ -715,8 +766,32 @@ begin
      except
       on E:Exception do
       begin
-      SaveLogToFile(LogFileName,'Error in SaveToLocalDB. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
-      GlobCritSect.Leave;
+        SaveLogToFile(LogFileName,'Error in SaveToLocalDB. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        GlobCritSect.Leave;
+      end;
+     end;
+end;
+
+procedure TMyTimerThread.SaveToLocalDB_ping;
+begin
+  GlobCritSect.Enter;
+  with form1 do
+     try
+         if not stats_ping.Active then stats_ping.Active := true;
+         stats_ping.Last;
+         stats_ping.Insert;
+         stats_pingid_equipment.AsInteger := StrToInt(f_idEquipment);
+         stats_pingDate.AsString := F_Date;
+         stats_pingTime.AsString := F_Time;
+         stats_pingdatetime.AsDateTime := F_Datetime;
+         stats_pingtime_ping.AsInteger := F_time_ping;
+         stats_ping.Post;
+         GlobCritSect.Leave;
+     except
+      on E:Exception do
+      begin
+        SaveLogToFile(LogFileName,'Error in SaveToLocalDB_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        GlobCritSect.Leave;
       end;
      end;
 end;
@@ -747,10 +822,21 @@ procedure TMyTimerThread.WriteToForm_lte;
 begin
   try
    if not Form1.RxTrayIcon1.Visible then
-    Form1.Label9.Caption:=IntToStr(Form1.stats_lte.RecordCount);
+    if Form1.stats_lte.Active then Form1.Label9.Caption:=IntToStr(Form1.stats_lte.RecordCount);
   except
    on E:Exception do
     SaveLogToFile(LogFileName,'Error in WriteToForm_lte. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+  end;
+end;
+
+procedure TMyTimerThread.WriteToForm_ping;
+begin
+  try
+   if not Form1.RxTrayIcon1.Visible then
+    if Form1.stats_ping.Active then Form1.lblCountPing.Caption:=IntToStr(Form1.stats_ping.RecordCount);
+  except
+   on E:Exception do
+    SaveLogToFile(LogFileName,'Error in WriteToForm_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
   end;
 end;
 

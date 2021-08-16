@@ -125,6 +125,7 @@ begin
       if (not Terminated) and Assigned(MyTimerThread[i]) then
       begin
         if MyTimerThread[i].f_is_lte then Continue;
+        if MyTimerThread[i].f_is_work_of_ping then Continue;
         AQuery.Close;
         AQuery.SQL.Text := 'select * from modems where id_modem='+MyTimerThread[i].F_IDModem;
         AQuery.Open;

@@ -73,7 +73,7 @@ object Form1: TForm1
   end
   object Label8: TLabel
     Left = 11
-    Top = 398
+    Top = 407
     Width = 92
     Height = 13
     Caption = #1055#1077#1088#1080#1086#1076' '#1086#1087#1088#1086#1089#1072', '#1089':'
@@ -82,6 +82,13 @@ object Form1: TForm1
   object Label9: TLabel
     Left = 121
     Top = 368
+    Width = 6
+    Height = 13
+    Caption = '0'
+  end
+  object lblCountPing: TLabel
+    Left = 121
+    Top = 384
     Width = 6
     Height = 13
     Caption = '0'
@@ -192,7 +199,7 @@ object Form1: TForm1
   end
   object edtPeriodOprosa: TSpinEdit
     Left = 109
-    Top = 395
+    Top = 404
     Width = 49
     Height = 22
     MaxValue = 0
@@ -258,42 +265,6 @@ object Form1: TForm1
       '    e.ip_address=m.ip_address  order by e.name')
     Left = 224
     Top = 208
-    object Modemsid_modem: TLargeintField
-      FieldName = 'id_modem'
-    end
-    object Modemsis_access_point: TSmallintField
-      FieldName = 'is_access_point'
-    end
-    object Modemsis_ap_repeater: TWordField
-      FieldName = 'is_ap_repeater'
-    end
-    object Modemsmac_wds_peer: TStringField
-      FieldName = 'mac_wds_peer'
-      Size = 50
-    end
-    object Modemsfirmware: TStringField
-      FieldName = 'firmware'
-      FixedChar = True
-      Size = 8
-    end
-    object Modemsname: TStringField
-      FieldName = 'name'
-      Size = 50
-    end
-    object Modemsip_address: TStringField
-      FieldName = 'ip_address'
-      Size = 50
-    end
-    object Modemsip_alias: TStringField
-      FieldName = 'ip_alias'
-      Size = 15
-    end
-    object Modemsequipment_type: TIntegerField
-      FieldName = 'equipment_type'
-    end
-    object ModemsuseInMonitoring: TSmallintField
-      FieldName = 'useInMonitoring'
-    end
   end
   object PopupMenu1: TPopupMenu
     Left = 200
@@ -384,6 +355,9 @@ object Form1: TForm1
     object stats_ap_localid_modem: TIntegerField
       FieldName = 'id_modem'
     end
+    object stats_ap_localid_equipment: TLargeintField
+      FieldName = 'id_equipment'
+    end
     object stats_ap_localsignal_level: TSmallintField
       FieldName = 'signal_level'
     end
@@ -416,6 +390,9 @@ object Form1: TForm1
     end
     object statss_localid_modem: TIntegerField
       FieldName = 'id_modem'
+    end
+    object statss_localid_equipment: TLargeintField
+      FieldName = 'id_equipment'
     end
     object statss_localmac_ap: TStringField
       FieldName = 'mac_ap'
@@ -490,6 +467,38 @@ object Form1: TForm1
     end
     object stats_ltesignal_sinr: TIntegerField
       FieldName = 'signal_sinr'
+    end
+  end
+  object stats_ping: TClientDataSet
+    Active = True
+    Aggregates = <>
+    Params = <>
+    Left = 240
+    Top = 48
+    Data = {
+      B30000009619E0BD010000001800000007000000000003000000B30002696404
+      0001000000010007535542545950450200490008004175746F696E63000C6964
+      5F65717569706D656E7408000100000000000444617465040006000000000004
+      54696D650400070000000000084461746574696D650800080000000000097469
+      6D655F70696E67040001000000000008665F6F6E6C696E650200010000000000
+      01000C4155544F494E4356414C55450400010001000000}
+    object stats_pingid: TAutoIncField
+      FieldName = 'id'
+    end
+    object stats_pingid_equipment: TLargeintField
+      FieldName = 'id_equipment'
+    end
+    object stats_pingDate: TDateField
+      FieldName = 'Date'
+    end
+    object stats_pingTime: TTimeField
+      FieldName = 'Time'
+    end
+    object stats_pingDatetime: TDateTimeField
+      FieldName = 'Datetime'
+    end
+    object stats_pingtime_ping: TIntegerField
+      FieldName = 'time_ping'
     end
   end
 end

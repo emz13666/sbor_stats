@@ -69,16 +69,6 @@ type
     chCollectStatsBullet: TCheckBox;
     chkSmotr2: TCheckBox;
     ADOConnection3: TADOConnection;
-    Modemsid_modem: TLargeintField;
-    Modemsis_access_point: TSmallintField;
-    Modemsis_ap_repeater: TWordField;
-    Modemsmac_wds_peer: TStringField;
-    Modemsfirmware: TStringField;
-    Modemsname: TStringField;
-    Modemsip_address: TStringField;
-    Modemsip_alias: TStringField;
-    Modemsequipment_type: TIntegerField;
-    ModemsuseInMonitoring: TSmallintField;
     stats_lte: TClientDataSet;
     stats_lteid: TAutoIncField;
     stats_lteid_equipment: TLargeintField;
@@ -89,6 +79,16 @@ type
     stats_ltesignal_rsrq: TIntegerField;
     stats_ltesignal_sinr: TIntegerField;
     Label9: TLabel;
+    stats_ping: TClientDataSet;
+    stats_pingid: TAutoIncField;
+    stats_pingid_equipment: TLargeintField;
+    stats_pingDate: TDateField;
+    stats_pingTime: TTimeField;
+    stats_pingDatetime: TDateTimeField;
+    stats_pingtime_ping: TIntegerField;
+    stats_ap_localid_equipment: TLargeintField;
+    statss_localid_equipment: TLargeintField;
+    lblCountPing: TLabel;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -161,6 +161,10 @@ begin
   stats_lte.Open;
   stats_lte.LogChanges := false;
 
+  stats_ping.FileName := ExtractFilePath(Application.ExeName)+'stats_ping.cds';
+  stats_ping.Open;
+  stats_ping.LogChanges := false;
+
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
   Label9.Caption := IntToStr(stats_lte.RecordCount);
@@ -195,8 +199,8 @@ begin
 
   Modems.Close;
   try
-    Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_alias, e.equipment_type,'+
-     ' e.useInMonitoring  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
+    Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_pc, e.ip_alias, e.equipment_type,'+
+     ' e.useInMonitoring, e.id  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
      'e.id=m.id_equipment order by e.name';
     Modems.Open;
     SaveLogToFile(LogFileName,'InitThreads begin...');
@@ -205,24 +209,26 @@ begin
     while not Modems.Eof do
     begin
       SetLength(myTimerThread,Length(MyTimerThread)+1);
-      MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modemsip_address.AsString,edtSnmpTimeout.Value);
-      MyTimerThread[high(MyTimerThread)].F_IDModem := Modemsid_modem.AsString;
-      if copy(Modemsname.AsString,1,3)='SZM' then
+      MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modems.FieldByName('ip_address').AsString,edtSnmpTimeout.Value);
+      MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
+      MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
+      if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
       begin
-        MyTimerThread[high(MyTimerThread)].f_host_alias := Modemsip_alias.AsString;
+        MyTimerThread[high(MyTimerThread)].f_host_alias := Modems.FieldByName('ip_alias').AsString;
         MyTimerThread[high(MyTimerThread)].f_is_alias := true;
       end
       else
         MyTimerThread[high(MyTimerThread)].f_is_alias := false;
       MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
-      if (Modemsequipment_type.AsInteger=3) then MyTimerThread[high(MyTimerThread)].status_default := 2
+      if (Modems.FieldByName('equipment_type').AsInteger=3) then MyTimerThread[high(MyTimerThread)].status_default := 2
         else MyTimerThread[high(MyTimerThread)].status_default := 0;
-      MyTimerThread[high(MyTimerThread)].f_firmware_thread := Modemsfirmware.AsString;
-      MyTimerThread[high(MyTimerThread)].f_new := (Modemsfirmware.AsString<>'5.5');
-      MyTimerThread[high(MyTimerThread)].f_is_access_point := (Modemsis_access_point.AsInteger=1);
+      MyTimerThread[high(MyTimerThread)].f_firmware_thread := Modems.FieldByName('firmware').AsString;
+      MyTimerThread[high(MyTimerThread)].f_new := (Modems.FieldByName('firmware').AsString<>'5.5');
+      MyTimerThread[high(MyTimerThread)].f_is_access_point := (Modems.FieldByName('is_access_point').AsInteger=1);
       MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := (Modems.FieldByName('is_ap_repeater').AsInteger=1);
       MyTimerThread[high(MyTimerThread)].F_mac_wds_peer := Modems.FieldByName('mac_wds_peer').AsString;
       MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+      MyTimerThread[high(MyTimerThread)].f_is_work_of_ping := false;
 //      MyTimerThread[high(MyTimerThread)].f_chk_ver := chkFirmwareVer.Checked;
       MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := chCollectStatsBullet.Checked;
       MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
@@ -230,6 +236,35 @@ begin
       MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
       MyTimerThread[high(MyTimerThread)].Start;
       sleep(8);
+
+//2021-08-16: סמחהא¸ל ןמעמךט הכÿ סבמנא ping ןמ ÐÒÕ-אל ט ÊÎÁÓÑ-אל:
+      SetLength(myTimerThread,Length(MyTimerThread)+1);
+      if (Modems.FieldByName('equipment_type').AsInteger in [1,2,5,6]) then begin
+          MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modems.FieldByName('ip_pc').AsString,edtSnmpTimeout.Value);
+          MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
+          MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
+          if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
+          begin
+            MyTimerThread[high(MyTimerThread)].f_host_alias := Modems.FieldByName('ip_alias').AsString;
+            MyTimerThread[high(MyTimerThread)].f_is_alias := true;
+          end
+          else
+            MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+          MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
+          if (Modems.FieldByName('equipment_type').AsInteger=3) then MyTimerThread[high(MyTimerThread)].status_default := 2
+            else MyTimerThread[high(MyTimerThread)].status_default := 0;
+          MyTimerThread[high(MyTimerThread)].f_new := false;
+          MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+          MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+          MyTimerThread[high(MyTimerThread)].f_is_work_of_ping := true;
+          MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+          MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+          MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+          MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
+          MyTimerThread[high(MyTimerThread)].Start;
+          sleep(8);
+      end;
+
       Application.ProcessMessages;
       Sleep(random(80));
       Application.ProcessMessages;
@@ -317,6 +352,7 @@ begin
   statss_local.Close;
   stats_ap_local.Close;
   stats_lte.Close;
+  stats_ping.Close;
   FreeAndNil(GlobCritSect);
   except
     on E:Exception do SaveLogToFile(LogFileName,'Error in destroying threads. ('+E.ClassName+': '+E.Message+')');
