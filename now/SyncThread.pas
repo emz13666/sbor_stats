@@ -460,6 +460,8 @@ begin
      end;
     end;
 
+(* 2021-08-18 - убрал обновление здесь. Обновляется статут теперь в потоках ping-ов
+
     AQuery.Close;
     AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_online_statss_local)+' where id_modem='+IntToStr(id_modem_statss_local);
     flag_ok := true;
@@ -473,7 +475,7 @@ begin
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
       GlobCritSect.Leave;
      end;
-    end;
+    end;*)
  finally
    AQuery.Close;
    AConn.Close;
