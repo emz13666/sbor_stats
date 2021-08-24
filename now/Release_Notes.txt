@@ -129,3 +129,9 @@ if tx_octets_eth0='' then tx_octets_eth0 :='0';
 Добавил сбор пингов со всех PTX и КОБУС в таблицу stats_ping.
 Добавил столбец id_equipment в таблицы statss и stats_ap и сбор значений в них.
 Добавил обновление поля online в таблице modems при сборе пинга.
+
+2021-08-20
+Переделал сбор статистики модемов LTE с ip_vpn на ip_lte
+
+2021-08-24
+Добавил задержки в потоке синхронизации между последовательными задачами, между insert и update в задаче dowork_ping, между insert и delete и пр. - иногда ошибки типа Deadlock found when trying to get lock; try restarting transaction
