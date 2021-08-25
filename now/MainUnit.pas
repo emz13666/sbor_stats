@@ -116,7 +116,6 @@ type
   end;
 
 
-
 var
   Form1: TForm1;
   GlobCritSect: TCriticalSection;

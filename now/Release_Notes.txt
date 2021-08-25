@@ -135,3 +135,9 @@ if tx_octets_eth0='' then tx_octets_eth0 :='0';
 
 2021-08-24
 Добавил задержки в потоке синхронизации между последовательными задачами, между insert и update в задаче dowork_ping, между insert и delete и пр. - иногда ошибки типа Deadlock found when trying to get lock; try restarting transaction
+
+2021-08-24
+Убрал задержки - с ними торррмозит синхронизация
+
+2021-08-25
+Добавил обновление поля online в таблице modems для базовых станций

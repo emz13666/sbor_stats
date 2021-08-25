@@ -166,15 +166,12 @@ var t1: cardinal;
 begin
   t1 := GetTickCount;
   GetCountLocalStatss;
-  sleep(100);
   while (rec_count_local_statss>0)and(GetTickCount-t1 < 15000) do
     begin
        GetStatss_local;
        // закомментировано для отладки
        PutToMySQL;
-       sleep(100);
        if flag_ok then DeleteFromStatsLocal;
-       sleep(100);
        GetCountLocalStatss;
     end;
 end;
@@ -185,15 +182,12 @@ var t1: cardinal;
 begin
   t1 := GetTickCount;
   GetCountLocalStatss_ap;
-  sleep(100);
   while (rec_count_local_statss_ap>0)and(GetTickCount-t1 < 15000) do
     begin
        GetStats_ap_local;
        // закомментировано для отладки
        PutToMySQL_ap;
-       sleep(100);
        if flag_ok_ap then DeleteFromStatsLocal_ap;
-       sleep(100);
        GetCountLocalStatss_ap;
     end;
 end;
@@ -203,15 +197,12 @@ var t1: cardinal;
 begin
   t1 := GetTickCount;
   GetCountLocalStatss_lte;
-  sleep(100);
   while (rec_count_local_stats_lte>0)and(GetTickCount-t1 < 15000) do
     begin
        GetStats_lte_local;
        // закомментировано для отладки
        PutToMySQL_LTE;
-       sleep(100);
        if flag_ok_lte then DeleteFromStatsLocal_lte;
-       sleep(100);
        GetCountLocalStatss_lte;
     end;
 end;
@@ -221,15 +212,12 @@ var t1: cardinal;
 begin
   t1 := GetTickCount;
   GetCountLocalStatss_ping;
-  sleep(100);
   while (rec_count_local_stats_ping>0)and(GetTickCount-t1 < 15000) do
     begin
        GetStats_ping_local;
        // закомментировано для отладки
        PutToMySQL_ping;
-       sleep(100);
        if flag_ok_ping then DeleteFromStatsLocal_ping;
-       sleep(100);
        GetCountLocalStatss_ping;
     end;
 end;
@@ -240,13 +228,9 @@ begin
   { Place thread code here }
   repeat
    DoWork;
-   sleep(50);
    DoWork_ap;
-   sleep(50);
    DoWork_lte;
-   sleep(50);
    DoWork_ping;
-   sleep(50);
    begin_tick := GetTickCount;
     while GetTickCount - begin_tick < 5000 do
       if not Terminated then sleep(10) else break;
@@ -499,6 +483,7 @@ begin
 end;
 
 procedure TMySyncThread.PutToMySQL_AP;
+var f_onl: byte;
 begin
  try
   AQuery.Close;
@@ -516,6 +501,22 @@ begin
     flag_ok_ap := true;
     try
       AQuery.ExecSQL;
+
+      AQuery.Close;
+      if sig_lev_statss_local > -100 then f_onl := 1 else f_onl := 0;
+      AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_equipment='+IntToStr(id_equip_statss_local);
+      try
+        AQuery.ExecSQL;
+      except
+        on E:Exception do
+        begin
+         GlobCritSect.Enter;
+         SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+         GlobCritSect.Leave;
+       end;
+     end;
+
+
     except
      on E:Exception do
      begin
@@ -591,7 +592,6 @@ begin
     AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_equipment='+IntToStr(id_equipment_ping);
     flag_ok_ping := true;
     try
-      Sleep(100);
       AQuery.ExecSQL;
     except
      on E:Exception do
