@@ -200,7 +200,7 @@ begin
   try
     Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_pc, e.ip_alias, e.equipment_type,'+
      ' e.useInMonitoring, e.id  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
-     'e.id=m.id_equipment order by e.name';
+     'e.id=m.id_equipment  order by e.name'; //for debug: and e.name = 'EX19'
     Modems.Open;
     SaveLogToFile(LogFileName,'InitThreads begin...');
     Modems.First;

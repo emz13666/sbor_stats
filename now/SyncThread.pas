@@ -336,7 +336,6 @@ begin
     id_modem_statss_local := statss_localid_modem.AsInteger;
     id_equip_statss_local := statss_localid_equipment.AsInteger;
     sig_lev_statss_local := statss_localsignal_level.AsInteger;
-    if sig_lev_statss_local=-100 then f_online_statss_local:=0 else f_online_statss_local:=1;
     date_statss_local := statss_localdate.AsDateTime;
     time_statss_local := statss_localtime.AsDateTime;
     mac_ap_statss_local := statss_localmac_ap.AsString;
@@ -362,7 +361,6 @@ begin
     id_modem_statss_local := stats_ap_localid_modem.AsInteger;
     id_equip_statss_local := stats_ap_localid_equipment.AsInteger;
     sig_lev_statss_local := stats_ap_localsignal_level.AsInteger;
-    if sig_lev_statss_local=-100 then f_online_statss_local:=0 else f_online_statss_local:=1;
     date_statss_local := stats_ap_localDate.AsDateTime;
     time_statss_local := stats_ap_localTime.AsDateTime;
     loadavg := stats_ap_localloadavg.AsAnsiString;
@@ -504,7 +502,7 @@ begin
 
       AQuery.Close;
       if sig_lev_statss_local > -100 then f_onl := 1 else f_onl := 0;
-      AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_equipment='+IntToStr(id_equip_statss_local);
+      AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_modem='+IntToStr(id_modem_statss_local);
       try
         AQuery.ExecSQL;
       except
@@ -590,13 +588,11 @@ begin
     AQuery.Close;
     if time_ping >=0 then f_onl := 1 else f_onl := 0;
     AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_equipment='+IntToStr(id_equipment_ping);
-    flag_ok_ping := true;
     try
       AQuery.ExecSQL;
     except
      on E:Exception do
      begin
-      flag_ok_ping := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
       GlobCritSect.Leave;

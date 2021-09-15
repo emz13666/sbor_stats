@@ -455,9 +455,15 @@ begin
     GlobCritSect.Leave;
     fl_incorrect_wds_peer := true;
   end;
-
-  mib_signal := '1.3.6.1.4.1.14988.1.1.1.2.1.3.'+
-    IntToStr(mac_part1)+'.'+IntToStr(mac_part2)+'.'+IntToStr(mac_part3)+'.'+IntToStr(mac_part4)+'.'+IntToStr(mac_part5)+'.'+IntToStr(mac_part6)+'.5';
+  if f_new then
+    mib_signal :=  '1.3.6.1.4.1.41112.1.4.7.1.3.1.'+
+      IntToStr(mac_part1)+'.'+IntToStr(mac_part2)+'.'+IntToStr(mac_part3)+'.'+
+      IntToStr(mac_part4)+'.'+IntToStr(mac_part5)+'.'+IntToStr(mac_part6)
+  else
+    mib_signal := '1.3.6.1.4.1.14988.1.1.1.2.1.3.'+
+      IntToStr(mac_part1)+'.'+IntToStr(mac_part2)+'.'+IntToStr(mac_part3)+'.'+
+      IntToStr(mac_part4)+'.'+IntToStr(mac_part5)+'.'+IntToStr(mac_part6)+
+      '.5';
    snmp.Query.Clear;
  fl := true;
  fl_noping := false;
@@ -691,6 +697,7 @@ begin
          statss_local.Last;
          statss_local.Insert;
          statss_localid_modem.AsInteger := StrToInt(F_IDModem);
+         statss_localid_equipment.AsInteger := StrToInt(f_idEquipment);
          statss_localmac_ap.AsString := F_AP;
          statss_localdate.AsString := F_Date;
          statss_localtime.AsString := F_Time;
@@ -717,6 +724,7 @@ begin
          stats_ap_local.Last;
          stats_ap_local.Insert;
          stats_ap_localid_modem.AsInteger := StrToInt(F_IDModem);
+         stats_ap_localid_equipment.AsInteger := StrToInt(f_idEquipment);
          stats_ap_localDate.AsAnsiString := F_Date;
          stats_ap_localTime.AsAnsiString := F_Time;
          if F_level='' then F_level := '-99';
