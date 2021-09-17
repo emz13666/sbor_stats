@@ -663,8 +663,10 @@ begin
                DoWork_ping
              else
                DoWork;
+
      if not (f_is_access_point or f_is_ap_repeater) and f_is_collect_net_stat  then
-       if not f_is_lte then DoWork_AP;
+       if not f_is_lte then
+         DoWork_AP;
 
     //если устройство офлайн больше 5 минут то мониторить раз в 1 минуту
     //sleep 60 sec

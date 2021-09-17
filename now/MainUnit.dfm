@@ -93,6 +93,13 @@ object Form1: TForm1
     Height = 13
     Caption = '0'
   end
+  object lblCountThreads: TLabel
+    Left = 192
+    Top = 408
+    Width = 77
+    Height = 13
+    Caption = #1042#1089#1077#1075#1086' '#1087#1086#1090#1086#1082#1086#1074':'
+  end
   object Button1: TButton
     Left = 494
     Top = 350
@@ -470,18 +477,10 @@ object Form1: TForm1
     end
   end
   object stats_ping: TClientDataSet
-    Active = True
     Aggregates = <>
     Params = <>
     Left = 240
     Top = 48
-    Data = {
-      B30000009619E0BD010000001800000007000000000003000000B30002696404
-      0001000200010007535542545950450200490008004175746F696E63000C6964
-      5F65717569706D656E7408000100000000000444617465040006000000000004
-      54696D650400070000000000084461746574696D650800080000000000097469
-      6D655F70696E67040001000000000008665F6F6E6C696E650200010000000000
-      01000C4155544F494E4356414C55450400010001000000}
     object stats_pingid: TAutoIncField
       FieldName = 'id'
     end

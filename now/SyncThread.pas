@@ -10,16 +10,19 @@ type
     rec_count_local_statss,rec_count_local_statss_ap,
     rec_count_local_stats_lte, rec_count_local_stats_ping : longint;
     id_statss_local, id_modem_statss_local,
-    id_equip_statss_local,
+    id_statss_local_ap, id_modem_statss_local_ap,
+    id_equip_statss_local, id_equip_statss_local_ap,
     id_equipment_lte, id_equipment_ping : longint;
     rsrq, rsrp, sinr, time_ping: integer;
     loadavg, memfree: AnsiString;
     rx_octets_eth0, tx_octets_eth0: AnsiString;
     mac_ap_statss_local: AnsiString;
     date_statss_local, time_statss_local: TDateTime;
+    date_statss_local_ap, time_statss_local_ap: TDateTime;
     datetime_lte, date_lte, time_lte: TDateTime;
     datetime_ping, date_ping, timeOfPing: TDateTime;
-    sig_lev_statss_local, f_online_statss_local,f_status: integer;
+    sig_lev_statss_local, f_online_statss_local, f_status,
+    sig_lev_statss_local_ap, f_online_statss_local_ap: integer;
     AQuery: TADOQuery;
     AConn: TADOConnection;
   protected
@@ -104,7 +107,7 @@ begin
  GlobCritSect.Enter;
  try
     Form1.stats_ap_local.First;
-    if Form1.stats_ap_local.Locate('id',id_statss_local,[]) then begin
+    if Form1.stats_ap_local.Locate('id',id_statss_local_ap,[]) then begin
       Form1.stats_ap_local.Delete;
     end;
     GlobCritSect.Leave;
@@ -242,7 +245,9 @@ begin
   GlobCritSect.Enter;
   try
     if not Form1.statss_local.Active then  Form1.statss_local.Open;
+    Form1.statss_local.Last;
     rec_count_local_statss := Form1.statss_local.RecordCount;
+    Form1.statss_local.First;
     if rec_count_local_statss=0 then begin
       form1.statss_local.EmptyDataSet;
       form1.statss_local.SaveToFile();
@@ -264,7 +269,9 @@ begin
   GlobCritSect.Enter;
   try
     if not Form1.stats_ap_local.Active then Form1.stats_ap_local.Open;
+    Form1.stats_ap_local.Last;
     rec_count_local_statss_ap := Form1.stats_ap_local.RecordCount;
+    Form1.stats_ap_local.First;
     if rec_count_local_statss_ap=0 then begin
       form1.stats_ap_local.EmptyDataSet;
       form1.stats_ap_local.SaveToFile();
@@ -286,7 +293,9 @@ begin
   GlobCritSect.Enter;
   try
     if not Form1.stats_lte.Active then Form1.stats_lte.Open;
+    Form1.stats_lte.Last;
     rec_count_local_stats_lte := Form1.stats_lte.RecordCount;
+    Form1.stats_lte.First;
     if rec_count_local_stats_lte=0 then begin
       form1.stats_lte.EmptyDataSet;
       form1.stats_lte.SaveToFile();
@@ -308,7 +317,9 @@ begin
   GlobCritSect.Enter;
   try
     if not Form1.stats_ping.Active then Form1.stats_ping.Open;
+    Form1.stats_ping.Last;
     rec_count_local_stats_ping := Form1.stats_ping.RecordCount;
+    Form1.stats_ping.First;
     if rec_count_local_stats_ping=0 then begin
       form1.stats_ping.EmptyDataSet;
       form1.stats_ping.SaveToFile();
@@ -356,13 +367,14 @@ begin
   with form1 do
   try
     if not stats_ap_local.Active then stats_ap_local.Open;
+    if rec_count_local_statss_ap=0 then exit;
     stats_ap_local.Last;
-    id_statss_local := stats_ap_localid.AsInteger;
-    id_modem_statss_local := stats_ap_localid_modem.AsInteger;
-    id_equip_statss_local := stats_ap_localid_equipment.AsInteger;
-    sig_lev_statss_local := stats_ap_localsignal_level.AsInteger;
-    date_statss_local := stats_ap_localDate.AsDateTime;
-    time_statss_local := stats_ap_localTime.AsDateTime;
+    id_statss_local_ap := stats_ap_localid.AsInteger;
+    id_modem_statss_local_ap := stats_ap_localid_modem.AsInteger;
+    id_equip_statss_local_ap := stats_ap_localid_equipment.AsInteger;
+    sig_lev_statss_local_ap := stats_ap_localsignal_level.AsInteger;
+    date_statss_local_ap := stats_ap_localDate.AsDateTime;
+    time_statss_local_ap := stats_ap_localTime.AsDateTime;
     loadavg := stats_ap_localloadavg.AsAnsiString;
     memfree := stats_ap_localmemfree.AsAnsiString;
     rx_octets_eth0 :=stats_ap_localrx_octets_eth0.AsAnsiString;
@@ -435,13 +447,14 @@ procedure TMySyncThread.PutToMySQL;
 begin
  try
   AQuery.Close;
-  AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, status) values('+
+  AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, datetime, status) values('+
             IntToStr(id_modem_statss_local)+','+
             IntToStr(id_equip_statss_local)+','+
             QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
             QuotedStr(mac_ap_statss_local)+','+
             QuotedStr(IntToStr(sig_lev_statss_local))+','+
             QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local))+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss',date_statss_local+time_statss_local))+','+
             IntToStr(f_status)+')';
   flag_ok := true;
     try
@@ -485,12 +498,13 @@ var f_onl: byte;
 begin
  try
   AQuery.Close;
-  AQuery.SQL.Text := 'Insert into stats_ap(id_modem, id_equipment, date, signal_level, time, loadavg, memfree, rx_octets_eth0, tx_octets_eth0) values('+
-            IntToStr(id_modem_statss_local)+','+
-            IntToStr(id_equip_statss_local)+','+
-            QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
-            QuotedStr(IntToStr(sig_lev_statss_local))+','+
-            QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local))+','+
+  AQuery.SQL.Text := 'Insert into stats_ap(id_modem, id_equipment, date, signal_level, time, datetime, loadavg, memfree, rx_octets_eth0, tx_octets_eth0) values('+
+            IntToStr(id_modem_statss_local_ap)+','+
+            IntToStr(id_equip_statss_local_ap)+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local_ap))+','+
+            QuotedStr(IntToStr(sig_lev_statss_local_ap))+','+
+            QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local_ap))+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss',date_statss_local_ap+time_statss_local_ap))+','+
             loadavg+','+
             memfree+','+
             rx_octets_eth0+','+
@@ -501,8 +515,8 @@ begin
       AQuery.ExecSQL;
 
       AQuery.Close;
-      if sig_lev_statss_local > -100 then f_onl := 1 else f_onl := 0;
-      AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_modem='+IntToStr(id_modem_statss_local);
+      if sig_lev_statss_local_ap > -100 then f_onl := 1 else f_onl := 0;
+      AQuery.SQL.Text := 'Update modems set online='+Inttostr(f_onl)+' where id_modem='+IntToStr(id_modem_statss_local_ap);
       try
         AQuery.ExecSQL;
       except

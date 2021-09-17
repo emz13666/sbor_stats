@@ -89,6 +89,7 @@ type
     stats_ap_localid_equipment: TLargeintField;
     statss_localid_equipment: TLargeintField;
     lblCountPing: TLabel;
+    lblCountThreads: TLabel;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -118,6 +119,7 @@ type
 
 var
   Form1: TForm1;
+  CountThreads: word;
   GlobCritSect: TCriticalSection;
   MyThreadTimerWifiOff: TThreadTimerWifiOff;
   My_timer_5min: TMyTimer5minThread;
@@ -128,6 +130,9 @@ var
   LogFileName: String;
 //  ArrayIdModems5MinNoPing: Array of Byte;
   fl_threadsDestroyed: boolean;
+
+//  arrStats: array [0..3] of AnsiString = ('statss', 'stats_ap', 'stats_lte', 'stats_ping');
+
 implementation
 
 {$R *.dfm}
@@ -200,15 +205,24 @@ begin
   try
     Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_pc, e.ip_alias, e.equipment_type,'+
      ' e.useInMonitoring, e.id  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
-     'e.id=m.id_equipment  order by e.name'; //for debug: and e.name = 'EX19'
+     'e.id=m.id_equipment order by e.name'; //for debug: and e.name = "EX19"
     Modems.Open;
     SaveLogToFile(LogFileName,'InitThreads begin...');
     Modems.First;
     SetLength(myTimerThread,0);
+    CountThreads := 0;
+
+       VarMoveToStatssOld := TMoveToStatss_oldThreadThread.Create(true);
+       VarMoveToStatssOld.FreeOnTerminate := false;
+       VarMoveToStatssOld.Start;
+       Inc(CountThreads);
+
+
     while not Modems.Eof do
     begin
       SetLength(myTimerThread,Length(MyTimerThread)+1);
       MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modems.FieldByName('ip_address').AsString,edtSnmpTimeout.Value);
+      Inc(CountThreads);
       MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
       MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
       if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
@@ -240,6 +254,7 @@ begin
       SetLength(myTimerThread,Length(MyTimerThread)+1);
       if (Modems.FieldByName('equipment_type').AsInteger in [1,2,5,6]) then begin
           MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Modems.FieldByName('ip_pc').AsString,edtSnmpTimeout.Value);
+          Inc(CountThreads);
           MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
           MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
           if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
@@ -250,8 +265,7 @@ begin
           else
             MyTimerThread[high(MyTimerThread)].f_is_alias := false;
           MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
-          if (Modems.FieldByName('equipment_type').AsInteger=3) then MyTimerThread[high(MyTimerThread)].status_default := 2
-            else MyTimerThread[high(MyTimerThread)].status_default := 0;
+          MyTimerThread[high(MyTimerThread)].status_default := 0;
           MyTimerThread[high(MyTimerThread)].f_new := false;
           MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
           MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
@@ -280,6 +294,7 @@ begin
     begin
       SetLength(myTimerThread,Length(MyTimerThread)+1);
       MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
+      Inc(CountThreads);
       MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id_equipment').AsString;
       MyTimerThread[high(MyTimerThread)].f_is_lte := true;
       MyTimerThread[high(MyTimerThread)].f_is_alias := false;
@@ -311,17 +326,16 @@ begin
     end;
   end;
   MySyncThread := TMySyncThread.Create(true);
+  Inc(CountThreads);
   MySyncThread.FreeOnTerminate := False;
   MySyncThread.Start;
 
   My_timer_5min := TMyTimer5minThread.Create(true);
+  Inc(CountThreads);
   My_timer_5min.FreeOnTerminate := False;
   My_timer_5min.Start;
   //MyThreadTimerWifiOff := TThreadTimerWifiOff.Create(true);
   //MyThreadTimerWifiOff.FreeOnTerminate := true;
-  VarMoveToStatssOld := TMoveToStatss_oldThreadThread.Create(true);
-  VarMoveToStatssOld.FreeOnTerminate := false;
-  VarMoveToStatssOld.Start;
   //LogError := Memo1.Lines;
   //LogError.Clear;
   //if FileExists(ExtractFilePath(Application.ExeName)+'LogError.txt') then
@@ -337,6 +351,7 @@ begin
   SaveLogToFile(LogFileName,'InitThreads done.');
   GlobCritSect.Leave;
   fl_threadsDestroyed := False;
+  lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
 end;
 
 procedure TForm1.FormActivate(Sender: TObject);
@@ -482,14 +497,14 @@ end;
 
 procedure TForm1.Button6Click(Sender: TObject);
 begin
-  if VarMoveToStatssOld.Suspended then begin
-    VarMoveToStatssOld.Resume;
-    Button6.Caption := 'Stop MoveToStatss_oldThread';
-  end
-  else begin
-    Button6.Caption := 'Start MoveToStatss_oldThread';
-    VarMoveToStatssOld.Suspend;
-  end;
+    if VarMoveToStatssOld.Suspended then begin
+      VarMoveToStatssOld.Resume;
+      Button6.Caption := 'Stop MoveToStatss_oldThread';
+    end
+    else begin
+      Button6.Caption := 'Start MoveToStatss_oldThread';
+      VarMoveToStatssOld.Suspend;
+    end;
 end;
 
 procedure TForm1.DestroyThreads;
@@ -502,6 +517,9 @@ try
   SaveLogToFile(LogFileName,'Destroying My_timer_5minThread begin');
   GlobCritSect.Leave;
   if Assigned(My_timer_5min) then My_timer_5min.Free;
+  dec(CountThreads);
+  lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
+  Application.ProcessMessages;
   GlobCritSect.Enter;
   SaveLogToFile(LogFileName,'Destroying My_timer_5minThread end');
   GlobCritSect.Leave;
@@ -512,7 +530,12 @@ try
    SaveLogToFile(LogFileName,'Destroing modem''s threads begin');
    GlobCritSect.Leave;
    for i := 0 to High(MyTimerThread) do
-    if Assigned(MyTimerThread[i]) then MyTimerThread[i].Free;
+    if Assigned(MyTimerThread[i]) then begin
+      MyTimerThread[i].Free;
+      dec(CountThreads);
+      lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
+      Application.ProcessMessages;
+    end;
    SetLength(MyTimerThread,0);
    GlobCritSect.Enter;
    SaveLogToFile(LogFileName,'Destroing modem''s threads end');
@@ -523,12 +546,18 @@ try
   SaveLogToFile(LogFileName,'Destroying SyncThread begin');
   GlobCritSect.Leave;
   if Assigned(MySyncThread) then MySyncThread.free;
+  dec(CountThreads);
+  lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
+  Application.ProcessMessages;
   GlobCritSect.Enter;
   SaveLogToFile(LogFileName,'Destroying SyncThread end');
 
   SaveLogToFile(LogFileName,'Destroying MoveToStatssOldThread begin');
   GlobCritSect.Leave;
-  if Assigned(VarMoveToStatssOld) then VarMoveToStatssOld.free;
+    if Assigned(VarMoveToStatssOld) then VarMoveToStatssOld.free;
+    dec(CountThreads);
+  lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
+  Application.ProcessMessages;
   GlobCritSect.Enter;
   SaveLogToFile(LogFileName,'Destroying MoveToStatssOldThread end');
   GlobCritSect.Leave;
