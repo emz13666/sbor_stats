@@ -1,7 +1,7 @@
 unit MyTimer5min;
 
 interface
-uses Classes, forms, snmpsend, pingsend, asn1util, windows, ADODB,MyUtils;
+uses Classes, forms, snmpsend, pingsend, asn1util, windows, ADODB,Messages, MyUtils;
 
 type
   TMyTimer5minThread = class(TThread)
@@ -14,6 +14,7 @@ type
   protected
     procedure SaveFirmwareToMySQL(F_IDModem, f_firmware: AnsiString);
     procedure Do_Work;
+    procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
     constructor Create(CreateSuspended: Boolean);
@@ -117,7 +118,9 @@ begin
 end;
 
 procedure TMyTimer5minThread.Do_Work;
-var i: integer; f_firmware: AnsiString;
+var
+  i: integer; f_firmware: AnsiString;
+  f_is_ap_rep_old: boolean;
 begin
  try
   try
@@ -127,15 +130,25 @@ begin
         if MyTimerThread[i].f_is_lte then Continue;
         if MyTimerThread[i].f_is_work_of_ping then Continue;
         AQuery.Close;
-        AQuery.SQL.Text := 'select * from modems where id_modem='+MyTimerThread[i].F_IDModem;
+        AQuery.SQL.Text := 'select * from modems where id_equipment='+MyTimerThread[i].f_idEquipment;
         AQuery.Open;
+          f_is_ap_rep_old := MyTimerThread[i].f_is_ap_repeater;
           MyTimerThread[i].f_is_ap_repeater := (AQuery.FieldByName('is_ap_repeater').AsInteger=1);
+          if MyTimerThread[i].f_is_ap_repeater xor f_is_ap_rep_old then begin
+            SaveLogToFile(LogFileName,'Флаг f_is_aprepeater для '+ MyTimerThread[i].f_nameModem +
+              ' установлен в '+ BoolToStr(MyTimerThread[i].f_is_ap_repeater));
+            Synchronize(UpdateMemoOnForm);
+          end;
+            
           f_firmware := ReadFirmwareVer(MyTimerThread[i].f_host);
           if f_firmware<>'' then MyTimerThread[i].f_new := (f_firmware <> '5.5');
           AQuery.Close;
           if f_firmware<>MyTimerThread[i].f_firmware_thread then
           begin
-             SaveFirmwareToMySQL(MyTimerThread[i].F_IDModem,f_firmware);
+             SaveFirmwareToMySQL(MyTimerThread[i].f_idEquipment,f_firmware);
+             SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+ 
+                ' обновлена с '+ MyTimerThread[i].f_firmware_thread + ' до '+f_firmware);
+             Synchronize(UpdateMemoOnForm);
              if f_firmware <>'' then MyTimerThread[i].f_firmware_thread:= f_firmware;
           end;
       end;
@@ -144,6 +157,7 @@ begin
    begin
      GlobCritSect.Enter;
      SaveLogToFile(LogFileName,'Ошибка в потоке проверки firmware и is_ap_repeater. ('+E.ClassName+': '+E.Message+')');
+     Synchronize(UpdateMemoOnForm);
      GlobCritSect.Leave;
    end;
   end;
@@ -157,17 +171,18 @@ end;
 procedure TMyTimer5minThread.SaveFirmwareToMySQL(F_IDModem, f_firmware: AnsiString);
 begin
  if f_firmware='' then exit;
- 
+
  try
   try
       AQuery.Close;
-      AQuery.SQL.Text := 'Update modems set firmware=' + QuotedStr(f_firmware)+' where id_modem='+F_IDModem;
+      AQuery.SQL.Text := 'Update modems set firmware=' + QuotedStr(f_firmware)+' where id_equipment='+F_IDModem;
       AQuery.ExecSQL;
   except
     on E:Exception do
     begin
      GlobCritSect.Enter;
      SaveLogToFile(LogFileName,'Ошибка в SaveFirmwareToMySQL. Modem:'+F_IDModem+' ('+E.ClassName+': '+E.Message+')');
+     Synchronize(UpdateMemoOnForm);
      GlobCritSect.Leave;
     end;
   end;
@@ -175,6 +190,12 @@ begin
       AQuery.Close;
       AConn.Close;
  end;
+end;
+
+procedure TMyTimer5minThread.UpdateMemoOnForm;
+begin
+  Form1.Memo1.Lines.LoadFromFile(LogFileName);
+  Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
 
 end.

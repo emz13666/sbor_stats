@@ -1,7 +1,7 @@
 unit MyTimer;
 
 interface
-uses Classes, forms, snmpsend, pingsend, asn1util, windows, ADODB,MyUtils;
+uses Classes, forms, snmpsend, pingsend, asn1util, windows, ADODB,MyUtils, Messages;
 
 type
   TMyTimerThread = class(TThread)
@@ -40,6 +40,7 @@ type
     procedure SaveToLocalDB_ping;
     procedure WriteToForm_AP;
     procedure SaveToLocalDB_AP;
+    procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
     PredvPing: boolean;
@@ -216,6 +217,7 @@ begin
     begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Error in DoWork. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
     end;
  end;
@@ -294,6 +296,7 @@ begin
    begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Error in DoWork_new. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
    end;
  end;
@@ -335,6 +338,7 @@ begin
    begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Error in DoWork_new. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
    end;
  end;
@@ -419,6 +423,7 @@ begin
       begin
        GlobCritSect.Enter;
        SaveLogToFile(LogFileName,'Error in DoWork_AP. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+       Synchronize(UpdateMemoOnForm);
        GlobCritSect.Leave;
       end;
      end;
@@ -537,6 +542,7 @@ begin
    begin
     GlobCritSect.Enter;
     SaveLogToFile(LogFileName,'Error in DoWork_AP_Repeater. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
  end;
@@ -629,6 +635,7 @@ begin
    begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Error in DoWork_LTE. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
    end;
  end;
@@ -711,6 +718,7 @@ begin
       on E:Exception do
       begin
       SaveLogToFile(LogFileName,'Error in SaveToLocalDB. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
       end;
      end;
@@ -749,6 +757,7 @@ begin
        on E:Exception do
        begin
         SaveLogToFile(LogFileName,'Ошибка в SaveToLocalDB_AP. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        Synchronize(UpdateMemoOnForm);
         GlobCritSect.Leave;
        end;
      end;
@@ -777,6 +786,7 @@ begin
       on E:Exception do
       begin
         SaveLogToFile(LogFileName,'Error in SaveToLocalDB. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        Synchronize(UpdateMemoOnForm);
         GlobCritSect.Leave;
       end;
      end;
@@ -801,9 +811,16 @@ begin
       on E:Exception do
       begin
         SaveLogToFile(LogFileName,'Error in SaveToLocalDB_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        Synchronize(UpdateMemoOnForm);
         GlobCritSect.Leave;
       end;
      end;
+end;
+
+procedure TMyTimerThread.UpdateMemoOnForm;
+begin
+  Form1.Memo1.Lines.LoadFromFile(LogFileName);
+  Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
 
 procedure TMyTimerThread.WriteToForm;
@@ -812,8 +829,10 @@ begin
    if not Form1.RxTrayIcon1.Visible then
     Form1.Label4.Caption:=IntToStr(Form1.statss_local.RecordCount);
   except
-   on E:Exception do
+   on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+    UpdateMemoOnForm;
+   end;
   end;
 end;
 
@@ -823,8 +842,10 @@ begin
     if not Form1.RxTrayIcon1.Visible then
       Form1.Label5.Caption:=IntToStr(Form1.stats_ap_local.RecordCount);
   except
-   on E:Exception do
+   on E:Exception do begin
       SaveLogToFile(LogFileName,'Ошибка в WriteToForm_AP. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      UpdateMemoOnForm;
+   end;
   end;
 end;
 
@@ -834,8 +855,10 @@ begin
    if not Form1.RxTrayIcon1.Visible then
     if Form1.stats_lte.Active then Form1.Label9.Caption:=IntToStr(Form1.stats_lte.RecordCount);
   except
-   on E:Exception do
+   on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm_lte. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+    UpdateMemoOnForm;
+   end;
   end;
 end;
 
@@ -845,8 +868,10 @@ begin
    if not Form1.RxTrayIcon1.Visible then
     if Form1.stats_ping.Active then Form1.lblCountPing.Caption:=IntToStr(Form1.stats_ping.RecordCount);
   except
-   on E:Exception do
+   on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+    UpdateMemoOnForm;
+   end;
   end;
 end;
 

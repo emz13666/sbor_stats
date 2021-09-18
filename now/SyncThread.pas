@@ -1,7 +1,7 @@
 unit SyncThread;
 
 interface
-uses Windows, Classes, forms,snmpsend,asn1util, ADODB, MyUtils;
+uses Windows, Classes, forms,snmpsend,asn1util, ADODB, MyUtils, Messages;
 
 type
   TMySyncThread = class(TThread)
@@ -46,6 +46,7 @@ type
     procedure DeleteFromStatsLocal_ap;
     procedure DeleteFromStatsLocal_lte;
     procedure DeleteFromStatsLocal_ping;
+    procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
     constructor Create(CreateSuspended: Boolean);
@@ -97,6 +98,7 @@ begin
   on E:Exception do
   begin
     SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal. id_statss_local:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
   end;
  end;
@@ -115,6 +117,7 @@ begin
   on E:Exception do
   begin
     SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal_ap. id_statss_local:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
   end;
  end;
@@ -133,6 +136,7 @@ begin
   on E:Exception do
   begin
     SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal_lte. id:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
   end;
  end;
@@ -151,6 +155,7 @@ begin
   on E:Exception do
   begin
     SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal_ping. id:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
   end;
  end;
@@ -259,6 +264,7 @@ begin
    on E:Exception do
    begin
       SaveLogToFile(LogFileName,'Error in GetCountLocalStatss в потоке синхронизации.'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
    end;
   end;
@@ -283,6 +289,7 @@ begin
     on E:Exception do
     begin
       SaveLogToFile(LogFileName,'Ошибка при выполнении GetCountLocalStatss_ap в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
     end;
   end;
@@ -307,6 +314,7 @@ begin
     on E:Exception do
     begin
       SaveLogToFile(LogFileName,'Ошибка при выполнении GetCountLocalStatss_lte в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
     end;
   end;
@@ -331,6 +339,7 @@ begin
     on E:Exception do
     begin
       SaveLogToFile(LogFileName,'Ошибка при выполнении GetCountLocalStatss_ping в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
     end;
   end;
@@ -356,6 +365,7 @@ begin
    on E:Exception do
    begin
     SaveLogToFile(LogFileName,'Ошибка при чтении записи из локальной БД в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
   end;
@@ -388,6 +398,7 @@ begin
    on E:Exception do
    begin
     SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_ap в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
   end;
@@ -414,6 +425,7 @@ begin
    on E:Exception do
    begin
     SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_lte в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
   end;
@@ -438,6 +450,7 @@ begin
    on E:Exception do
    begin
     SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_lte в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
   end;
@@ -466,6 +479,7 @@ begin
       flag_ok := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
       AQuery.Close;
      end;
@@ -524,6 +538,7 @@ begin
         begin
          GlobCritSect.Enter;
          SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+         Synchronize(UpdateMemoOnForm);
          GlobCritSect.Leave;
        end;
      end;
@@ -565,6 +580,7 @@ begin
       flag_ok_lte := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
      end;
     end;
@@ -595,6 +611,7 @@ begin
       flag_ok_ping := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
      end;
     end;
@@ -609,6 +626,7 @@ begin
      begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
      end;
     end;
@@ -617,6 +635,12 @@ begin
    AQuery.Close;
    AConn.Close;
  end;
+end;
+
+procedure TMySyncThread.UpdateMemoOnForm;
+begin
+  Form1.Memo1.Lines.LoadFromFile(LogFileName);
+  Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
 
 end.

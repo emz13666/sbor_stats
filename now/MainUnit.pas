@@ -464,7 +464,7 @@ begin
   Cursor := crHourGlass;
 
   InitThreads;
-
+  Application.ProcessMessages;
   Button2.Enabled := true;
   Cursor := crDefault;
   chkPredvPing.Enabled := false;

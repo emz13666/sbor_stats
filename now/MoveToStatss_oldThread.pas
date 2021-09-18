@@ -1,7 +1,7 @@
 unit MoveToStatss_oldThread;
 
 interface
-uses Windows, Classes, forms,snmpsend,asn1util,ADODB, MyUtils;
+uses Windows, Classes, forms,snmpsend,asn1util,ADODB, MyUtils, Messages;
 
 type
   TMoveToStatss_oldThreadThread = class(TThread)
@@ -10,6 +10,7 @@ type
     AConn: TADOConnection;
   protected
     procedure DoWork;
+    procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
     constructor Create(CreateSuspended: Boolean);
@@ -95,12 +96,22 @@ begin
   { Place thread code here }
   repeat
    begin_tick := GetTickCount;
-   //прерываемый sleep на 8 минут
-   while GetTickCount - begin_tick < 8*60*1000 do if not Terminated then sleep(10) else break;
-   if (StrToInt(FormatDateTime('h',now)) in [5,6,7])and(not Terminated) then
+   //прерываемый sleep на 59 минут
+   while GetTickCount - begin_tick < 59*60*1000 do if not Terminated then sleep(10) else break;
+   if (not Terminated)and(StrToInt(FormatDateTime('h',now)) = 5) then begin
+      SaveLogToFile(LogFileName,'Очистка старых данных начата.');
+      Synchronize(UpdateMemoOnForm);
       DoWork;
-
+      SaveLogToFile(LogFileName,'Очистка старых данных завершена.');
+      Synchronize(UpdateMemoOnForm);
+   end;
   until Terminated;
+end;
+
+procedure TMoveToStatss_oldThreadThread.UpdateMemoOnForm;
+begin
+  Form1.Memo1.Lines.LoadFromFile(LogFileName);
+  Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
 
 end.
