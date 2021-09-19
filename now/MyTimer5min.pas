@@ -85,7 +85,7 @@ begin
 
      //sleep 5 мин
      begin_tick := GetTickCount;
-     while ((GetTickCount - begin_tick) < 300000) do
+     while ((GetTickCount - begin_tick) < 5*60*1000) do
        if not Terminated then sleep(10) else break;
      Do_Work;
   until Terminated;
@@ -135,21 +135,29 @@ begin
           f_is_ap_rep_old := MyTimerThread[i].f_is_ap_repeater;
           MyTimerThread[i].f_is_ap_repeater := (AQuery.FieldByName('is_ap_repeater').AsInteger=1);
           if MyTimerThread[i].f_is_ap_repeater xor f_is_ap_rep_old then begin
-            SaveLogToFile(LogFileName,'Флаг f_is_aprepeater для '+ MyTimerThread[i].f_nameModem +
-              ' установлен в '+ BoolToStr(MyTimerThread[i].f_is_ap_repeater));
+            if MyTimerThread[i].f_is_ap_repeater then begin
+                MyTimerThread[i].F_mac_wds_peer := AQuery.FieldByName('mac_wds_peer').AsString;
+                SaveLogToFile(LogFileName,'Поле F_mac_wds_peer для '+ MyTimerThread[i].f_nameModem +
+              ' установлено в '+ MyTimerThread[i].F_mac_wds_peer);
+            end;
+            SaveLogToFile(LogFileName,'Флаг f_is_ap_repeater для '+ MyTimerThread[i].f_nameModem +
+              ' установлен в '+ BooleanToString(MyTimerThread[i].f_is_ap_repeater));
             Synchronize(UpdateMemoOnForm);
           end;
-            
+
           f_firmware := ReadFirmwareVer(MyTimerThread[i].f_host);
           if f_firmware<>'' then MyTimerThread[i].f_new := (f_firmware <> '5.5');
           AQuery.Close;
           if f_firmware<>MyTimerThread[i].f_firmware_thread then
           begin
              SaveFirmwareToMySQL(MyTimerThread[i].f_idEquipment,f_firmware);
-             SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+ 
-                ' обновлена с '+ MyTimerThread[i].f_firmware_thread + ' до '+f_firmware);
-             Synchronize(UpdateMemoOnForm);
-             if f_firmware <>'' then MyTimerThread[i].f_firmware_thread:= f_firmware;
+             if f_firmware <>'' then begin
+               SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+
+                  ' обновлена с '+ MyTimerThread[i].f_firmware_thread + ' до '+f_firmware);
+               Synchronize(UpdateMemoOnForm);
+               MyTimerThread[i].f_firmware_thread:= f_firmware;
+             end;
+
           end;
       end;
   except
@@ -181,7 +189,7 @@ begin
     on E:Exception do
     begin
      GlobCritSect.Enter;
-     SaveLogToFile(LogFileName,'Ошибка в SaveFirmwareToMySQL. Modem:'+F_IDModem+' ('+E.ClassName+': '+E.Message+')');
+     SaveLogToFile(LogFileName,'Ошибка в SaveFirmwareToMySQL. Equipment:'+F_IDModem+' ('+E.ClassName+': '+E.Message+')');
      Synchronize(UpdateMemoOnForm);
      GlobCritSect.Leave;
     end;

@@ -73,8 +73,15 @@ function DateTimeToShiftName(dttm:TDateTime):string; // Получение имени сменн по
 function ShiftNameToDateTime(shiftname:string):TDateTime;      // Получение даты и времени по имени смены
 function LinesCount(const Filename: string): Integer;          // Количество строк в текстовом файле
 function GetModularStatusName(status:shortint):string;   // Получение названия статуса по номеру
+function BooleanToString (FValue: boolean):AnsiString;
 
 implementation
+
+function BooleanToString (FValue: boolean):AnsiString;
+begin
+  if FValue then Result := 'True'
+  else Result := 'False';
+end;
 
 Function GetFileInfo(FileName:String; Var FileInfo:TFileInfo):Boolean;
       var I, J: Integer;
