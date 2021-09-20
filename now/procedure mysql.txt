@@ -1,0 +1,86 @@
+USE `ubiquiti`;
+
+DROP procedure IF EXISTS `doLog`;
+
+DELIMITER $$
+USE `ubiquiti`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `doLog`(in logMsg nvarchar(2048))
+BEGIN  
+  insert into log_debug_proc (msg) values(logMsg);
+END$$
+
+DELIMITER ;
+
+DROP procedure IF EXISTS `resetLog`;
+
+DELIMITER $$
+USE `ubiquiti`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `resetLog`()
+BEGIN   
+    create table if not exists log_debug_proc (ts timestamp default current_timestamp, msg varchar(2048)) engine = myisam; 
+    truncate table log_debug_proc;
+END$$
+
+DELIMITER ;
+
+DROP procedure IF EXISTS `del_old_from_stats`;
+
+DELIMITER $$
+USE `ubiquiti`$$
+CREATE DEFINER=`root`@`%` PROCEDURE `del_old_from_stats`()
+BEGIN
+  DECLARE affected_rows INT DEFAULT 0;
+  DECLARE count_rows INT DEFAULT 0;
+  call resetLog ();
+  REPEAT 
+    DELETE FROM `stats_ap` where date<=DATE_SUB(curdate(),INTERVAL 70 day) LIMIT 50000;
+    SELECT ROW_COUNT() INTO affected_rows;
+    set count_rows = count_rows + affected_rows;
+    if affected_rows <> 0 then 
+      call dolog(concat_ws(': ','CountDeletedRowsIn_stats_ap',  count_rows));
+    end if;
+  UNTIL affected_rows=0
+  END REPEAT;
+  set count_rows=0;
+  REPEAT
+    DELETE FROM `stats_lte` where date<=DATE_SUB(curdate(),INTERVAL 70 day) LIMIT 50000;
+    SELECT ROW_COUNT() INTO affected_rows;
+    set count_rows = count_rows + affected_rows;
+    if affected_rows <> 0  then 
+      call dolog(concat_ws(': ','CountDeletedRowsIn_stats_lte',  count_rows));
+	end if;
+  UNTIL affected_rows=0
+  END REPEAT;    
+  set count_rows=0;
+  REPEAT
+    DELETE FROM `stats_ping` where date<=DATE_SUB(curdate(),INTERVAL 70 day) LIMIT 50000;
+    SELECT ROW_COUNT() INTO affected_rows;
+    set count_rows = count_rows + affected_rows;
+    if affected_rows <> 0 then
+      call dolog(concat_ws(': ','CountDeletedRowsIn_stats_ping',  count_rows));
+	end if;
+  UNTIL affected_rows=0
+  END REPEAT;
+  set count_rows=0;
+  REPEAT
+    delete from `stats_status` where datetimeend<=DATE_SUB(curdate(),interval 70 day) LIMIT 50000;
+    SELECT ROW_COUNT() INTO affected_rows;
+    set count_rows = count_rows + affected_rows;
+    if affected_rows <> 0 then
+      call dolog(concat_ws(': ','CountDeletedRowsIn_stats_status',  count_rows));
+	end if;
+  UNTIL affected_rows=0
+  END REPEAT;
+  set count_rows=0;
+  REPEAT
+   DELETE /* proc del_old_from stats */ FROM `statss` where date<=DATE_SUB(curdate(),INTERVAL 70 day) limit 50000;
+   SELECT ROW_COUNT() INTO affected_rows;
+    set count_rows = count_rows + affected_rows;
+    if affected_rows <> 0 then 
+      call dolog(concat_ws(': ','CountDeletedRowsIn_statss',  count_rows));
+	end if;
+  UNTIL affected_rows=0  
+  END REPEAT;
+END$$
+
+DELIMITER ;
