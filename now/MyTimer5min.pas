@@ -94,6 +94,7 @@ end;
 function TMyTimer5minThread.ReadFirmwareVer(fHost: AnsiString): AnsiString;
 var s2,s3:AnsiString;
 begin
+  if Terminated then Exit;
      try
        Result := '';
        snmp.Query.Clear;
@@ -122,6 +123,7 @@ var
   i: integer; f_firmware: AnsiString;
   f_is_ap_rep_old: boolean;
 begin
+  if Terminated then Exit;
  try
   try
     for i := 0 to high(MyTimerThread) do
@@ -178,6 +180,7 @@ end;
 
 procedure TMyTimer5minThread.SaveFirmwareToMySQL(F_IDModem, f_firmware: AnsiString);
 begin
+  if Terminated then Exit;
  if f_firmware='' then exit;
 
  try
@@ -202,6 +205,7 @@ end;
 
 procedure TMyTimer5minThread.UpdateMemoOnForm;
 begin
+  if Terminated then Exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;

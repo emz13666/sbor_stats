@@ -173,3 +173,4 @@ if tx_octets_eth0='' then tx_octets_eth0 :='0';
       form1.stats_ping.Close;
       form1.stats_ping.Open;
     end;*)
+Добавил во все процедуры в потоках   if Terminated then Exit; - иногда возникают ошибки при закрытии приложения.

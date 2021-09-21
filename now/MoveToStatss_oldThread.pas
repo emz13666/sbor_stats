@@ -65,6 +65,7 @@ procedure TMoveToStatss_oldThreadThread.DoWork;
 var
   date_old: TDateTime;
 begin
+  if Terminated then Exit;
   try
       //в 5,6,7 утра удаляем данные старше 70 дней
          date_old:=date - 70;//70 days
@@ -110,6 +111,7 @@ end;
 
 procedure TMoveToStatss_oldThreadThread.UpdateMemoOnForm;
 begin
+  if Terminated then Exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;

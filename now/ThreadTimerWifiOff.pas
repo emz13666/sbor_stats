@@ -45,7 +45,9 @@ var
   f_ip_ap, f_user_ap, f_passwd_ap:AnsiString;
   begin_tick: cardinal;
 begin
+  if Terminated then Exit;
  //Synchronize(localdb_close_open);
+
  datetime_proverka := now;
   try
   Form1.QueryWifi_log.Close;
@@ -129,6 +131,7 @@ end;
 
 procedure TThreadTimerWifiOff.localdb_close_open;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
   try

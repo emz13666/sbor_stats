@@ -152,6 +152,7 @@ var
    fl: boolean;
    fl_noping: boolean;
 begin
+ if Terminated then Exit;
  snmp.Query.Clear;
  fl := true;
  fl_noping := false;
@@ -228,6 +229,7 @@ var
    fl: boolean;
    fl_noping: boolean;
 begin
+ if Terminated then Exit;
  snmp.Query.Clear;
  fl := true;
  fl_noping := false;
@@ -305,6 +307,7 @@ end;
 
 procedure TMyTimerThread.DoWork_ping;
 begin
+  if Terminated then Exit;
  try
 
    F_Date := FormatDateTime('dd.mm.yyyy',now);
@@ -348,6 +351,7 @@ procedure TMyTimerThread.DoWork_AP;
 var    fl_noping: boolean;
       // CurrentTick: Cardinal;
 begin
+   if Terminated then Exit;
    snmp.Query.Clear;
    f_online := '1';
    fl_noping := false;
@@ -446,6 +450,7 @@ var
    mib_signal: AnsiString;
    mac_part1, mac_part2, mac_part3, mac_part4, mac_part5, mac_part6:integer;
 begin
+  if Terminated then Exit;
   mac_part1 := HexToInt(Copy(F_mac_wds_peer,1,2));
   mac_part2 := HexToInt(Copy(F_mac_wds_peer,4,2));
   mac_part3 := HexToInt(Copy(F_mac_wds_peer,7,2));
@@ -559,6 +564,7 @@ const
    ifIndex = '1.3.6.1.2.1.2.2.1.1';
    ifIndexDescr = '1.3.6.1.2.1.2.2.1.2';
 begin
+  if Terminated then Exit;
  fl := true;
  fl_noping := false;
  try
@@ -697,6 +703,7 @@ end;
 
 procedure TMyTimerThread.SaveToLocalDB;
 begin
+  if Terminated then Exit;
   if (F_AP='') then exit;
   if F_level='' then exit;
   GlobCritSect.Enter;
@@ -727,6 +734,7 @@ end;
 
 procedure TMyTimerThread.SaveToLocalDB_AP;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
      try
@@ -765,6 +773,7 @@ end;
 
 procedure TMyTimerThread.SaveToLocalDB_LTE;
 begin
+  if Terminated then Exit;
   if (F_rsrp='')or(F_rsrq='') then exit;
   if (F_sinr='') then exit;
   GlobCritSect.Enter;
@@ -794,6 +803,7 @@ end;
 
 procedure TMyTimerThread.SaveToLocalDB_ping;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
      try
@@ -819,12 +829,14 @@ end;
 
 procedure TMyTimerThread.UpdateMemoOnForm;
 begin
+  if Terminated then Exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
 
 procedure TMyTimerThread.WriteToForm;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
    if not Form1.RxTrayIcon1.Visible then
@@ -841,6 +853,7 @@ end;
 
 procedure TMyTimerThread.WriteToForm_AP;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
     if not Form1.RxTrayIcon1.Visible then
@@ -857,6 +870,7 @@ end;
 
 procedure TMyTimerThread.WriteToForm_lte;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
    if not Form1.RxTrayIcon1.Visible then
@@ -873,6 +887,7 @@ end;
 
 procedure TMyTimerThread.WriteToForm_ping;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
    if not Form1.RxTrayIcon1.Visible then

@@ -87,6 +87,7 @@ end;
 
 procedure TMySyncThread.DeleteFromStatsLocal;
 begin
+ if Terminated then exit;
  GlobCritSect.Enter;
  try
     Form1.statss_local.First;
@@ -106,6 +107,7 @@ end;
 
 procedure TMySyncThread.DeleteFromStatsLocal_ap;
 begin
+ if Terminated then exit;
  GlobCritSect.Enter;
  try
     Form1.stats_ap_local.First;
@@ -125,6 +127,7 @@ end;
 
 procedure TMySyncThread.DeleteFromStatsLocal_lte;
 begin
+ if Terminated then exit;
  GlobCritSect.Enter;
  try
     Form1.stats_lte.First;
@@ -144,6 +147,7 @@ end;
 
 procedure TMySyncThread.DeleteFromStatsLocal_ping;
 begin
+ if Terminated then exit;
  GlobCritSect.Enter;
  try
     Form1.stats_ping.First;
@@ -172,6 +176,7 @@ end;
 procedure TMySyncThread.DoWork;
 var t1: cardinal;
 begin
+  if Terminated then exit;
   t1 := GetTickCount;
   GetCountLocalStatss;
   while (rec_count_local_statss>0)and(GetTickCount-t1 < 15000) do
@@ -181,6 +186,7 @@ begin
        PutToMySQL;
        if flag_ok then DeleteFromStatsLocal;
        GetCountLocalStatss;
+        if Terminated then Break;
     end;
 end;
 
@@ -188,10 +194,12 @@ end;
 procedure TMySyncThread.DoWork_ap;
 var t1: cardinal;
 begin
+ if Terminated then exit;
   t1 := GetTickCount;
   GetCountLocalStatss_ap;
   while (rec_count_local_statss_ap>0)and(GetTickCount-t1 < 15000) do
     begin
+       if Terminated then Break;
        GetStats_ap_local;
        // закомментировано для отладки
        PutToMySQL_ap;
@@ -203,10 +211,12 @@ end;
 procedure TMySyncThread.DoWork_lte;
 var t1: cardinal;
 begin
+  if Terminated then Exit;
   t1 := GetTickCount;
   GetCountLocalStatss_lte;
   while (rec_count_local_stats_lte>0)and(GetTickCount-t1 < 15000) do
     begin
+       if Terminated then Break;
        GetStats_lte_local;
        // закомментировано для отладки
        PutToMySQL_LTE;
@@ -218,10 +228,12 @@ end;
 procedure TMySyncThread.DoWork_ping;
 var t1: cardinal;
 begin
+  if Terminated then Exit;
   t1 := GetTickCount;
   GetCountLocalStatss_ping;
   while (rec_count_local_stats_ping>0)and(GetTickCount-t1 < 15000) do
     begin
+      if Terminated then Break;
        GetStats_ping_local;
        // закомментировано для отладки
        PutToMySQL_ping;
@@ -247,6 +259,7 @@ end;
 
 procedure TMySyncThread.GetCountLocalStatss;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
     if not Form1.statss_local.Active then  Form1.statss_local.Open;
@@ -276,6 +289,7 @@ end;
 
 procedure TMySyncThread.GetCountLocalStatss_ap;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
     if not Form1.stats_ap_local.Active then Form1.stats_ap_local.Open;
@@ -307,6 +321,7 @@ end;
 
 procedure TMySyncThread.GetCountLocalStatss_lte;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
     if not Form1.stats_lte.Active then Form1.stats_lte.Open;
@@ -335,6 +350,7 @@ end;
 
 procedure TMySyncThread.GetCountLocalStatss_ping;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   try
     if not Form1.stats_ping.Active then Form1.stats_ping.Open;
@@ -364,6 +380,7 @@ end;
 
 procedure TMySyncThread.GetStatss_local;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
   try
@@ -390,6 +407,7 @@ end;
 
 procedure TMySyncThread.GetStats_ap_local;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
   try
@@ -423,6 +441,7 @@ end;
 
 procedure TMySyncThread.GetStats_lte_local;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
   try
@@ -450,6 +469,7 @@ end;
 
 procedure TMySyncThread.GetStats_ping_local;
 begin
+  if Terminated then Exit;
   GlobCritSect.Enter;
   with form1 do
   try
@@ -475,6 +495,7 @@ end;
 
 procedure TMySyncThread.PutToMySQL;
 begin
+ if Terminated then exit;
  try
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, datetime, status) values('+
@@ -527,6 +548,7 @@ end;
 procedure TMySyncThread.PutToMySQL_AP;
 var f_onl: byte;
 begin
+ if Terminated then exit;
  try
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into stats_ap(id_modem, id_equipment, date, signal_level, time, datetime, loadavg, memfree, rx_octets_eth0, tx_octets_eth0) values('+
@@ -578,6 +600,7 @@ end;
 
 procedure TMySyncThread.PutToMySQL_LTE;
 begin
+ if Terminated then exit;
  try
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into stats_lte(id_equipment, date, time, datetime, signal_rsrp, signal_rsrq, signal_sinr) values('+
@@ -611,6 +634,7 @@ procedure TMySyncThread.PutToMySQL_ping;
 var
   f_onl: integer;
 begin
+ if Terminated then exit;
  try
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into stats_ping(id_equipment, date, time, datetime, time_ping) values('+
@@ -656,6 +680,7 @@ end;
 
 procedure TMySyncThread.UpdateMemoOnForm;
 begin
+  if Terminated then exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
 end;
