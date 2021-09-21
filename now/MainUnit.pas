@@ -36,7 +36,6 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
-    RxTrayIcon1: TTrayIcon;
     Label5: TLabel;
     stats_ap_local: TClientDataSet;
     stats_ap_localid: TAutoIncField;
@@ -90,6 +89,7 @@ type
     statss_localid_equipment: TLargeintField;
     lblCountPing: TLabel;
     lblCountThreads: TLabel;
+    RxTrayIcon: TRxTrayIcon;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -116,6 +116,7 @@ type
     { Public declarations }
   end;
 
+const free_on_term = false;
 
 var
   Form1: TForm1;
@@ -130,7 +131,7 @@ var
   LogFileName: String;
 //  ArrayIdModems5MinNoPing: Array of Byte;
   fl_threadsDestroyed: boolean;
-
+  FormCreated: boolean = false;
 //  arrStats: array [0..3] of AnsiString = ('statss', 'stats_ap', 'stats_lte', 'stats_ping');
 
 implementation
@@ -139,7 +140,7 @@ implementation
 
 procedure TForm1.RxTrayIcon1DblClick(Sender: TObject);
 begin
-  RxTrayIcon1.Visible := false;
+  RxTrayIcon.Active := false;
   ShowWindow(Application.Handle,SW_SHOW);
   ShowWindow(Handle,SW_SHOW);
   Application.Restore;
@@ -172,7 +173,7 @@ begin
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
   Label9.Caption := IntToStr(stats_lte.RecordCount);
-  RxTrayIcon1.Visible := true;
+  RxTrayIcon.active := true;
   Application.OnMinimize := Hide_appl;
 
   fl_threadsDestroyed := true;
@@ -183,11 +184,12 @@ begin
   edtSnmpTimeout.Enabled := false;
   edtPingUnreachble.Enabled := false;
   edtPeriodOprosa.Enabled := false;
+  FormCreated := true;
 end;
 
 procedure TForm1.Hide_appl(Sender: TObject);
 begin
-  RxTrayIcon1.Visible := true;
+  RxTrayIcon.Active := true;
   Application.Minimize;
   //Application.ShowMainForm := false;
   ShowWindow(Application.Handle,SW_HIDE);
@@ -213,7 +215,7 @@ begin
     CountThreads := 0;
 
        VarMoveToStatssOld := TMoveToStatss_oldThreadThread.Create(true);
-       VarMoveToStatssOld.FreeOnTerminate := false;
+       VarMoveToStatssOld.FreeOnTerminate := free_on_term;
        VarMoveToStatssOld.Start;
        Inc(CountThreads);
 
@@ -246,9 +248,9 @@ begin
       MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := chCollectStatsBullet.Checked;
       MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
       MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
-      MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
+      MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
       MyTimerThread[high(MyTimerThread)].Start;
-      sleep(8);
+//      sleep(8);
 
 //2021-08-16: создаём потоки для сбора ping по РТХ-ам и КОБУС-ам:
       SetLength(myTimerThread,Length(MyTimerThread)+1);
@@ -274,14 +276,14 @@ begin
           MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
           MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
           MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
-          MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
+          MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
           MyTimerThread[high(MyTimerThread)].Start;
-          sleep(8);
+  //        sleep(8);
       end;
 
-      Application.ProcessMessages;
-      Sleep(random(80));
-      Application.ProcessMessages;
+      //Application.ProcessMessages;
+    //  Sleep(random(80));
+      //Application.ProcessMessages;
       Modems.Next;
     end;
     modems.Close;
@@ -307,12 +309,12 @@ begin
       MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
       MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
       MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
-      MyTimerThread[high(MyTimerThread)].FreeOnTerminate := False;
+      MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
       MyTimerThread[high(MyTimerThread)].Start;
-      sleep(8);
-      Application.ProcessMessages;
-      Sleep(random(80));
-      Application.ProcessMessages;
+      //sleep(8);
+      //Application.ProcessMessages;
+      //Sleep(random(80));
+      //Application.ProcessMessages;
       Query.Next;
     end;
     Query.Close;
@@ -328,15 +330,15 @@ begin
   end;
   MySyncThread := TMySyncThread.Create(true);
   Inc(CountThreads);
-  MySyncThread.FreeOnTerminate := False;
+  MySyncThread.FreeOnTerminate := free_on_term;
   MySyncThread.Start;
 
   My_timer_5min := TMyTimer5minThread.Create(true);
   Inc(CountThreads);
-  My_timer_5min.FreeOnTerminate := False;
+  My_timer_5min.FreeOnTerminate := free_on_term;
   My_timer_5min.Start;
   //MyThreadTimerWifiOff := TThreadTimerWifiOff.Create(true);
-  //MyThreadTimerWifiOff.FreeOnTerminate := true;
+  //MyThreadTimerWifiOff.FreeOnTerminate := free_on_term;
   //LogError := Memo1.Lines;
   //LogError.Clear;
   //if FileExists(ExtractFilePath(Application.ExeName)+'LogError.txt') then
@@ -345,7 +347,7 @@ begin
     //LogError.SaveToFile(ExtractFilePath(Application.ExeName)+'LogError.txt');
    if FileExists(LogFileName) then Memo1.Lines.LoadFromFile(LogFileName);
    Memo1.Perform(EM_LINESCROLL,0,Memo1.Lines.Count-1);
-  sleep(100);
+//  sleep(100);
 {  if chkSmotr2.Checked then
     MyThreadTimerWifiOff.Start;}
   GlobCritSect.Enter;
@@ -478,7 +480,7 @@ end;
 procedure TForm1.Button4Click(Sender: TObject);
 begin
 {  if MyThreadTimerWifiOff.Suspended then begin
-    MyThreadTimerWifiOff.Resume;
+    MyThreadTimerWifiOff.Start;
     Button4.Caption := 'Stop_checkWIFI';
     chkSmotr2.Checked := true;
   end
@@ -498,13 +500,19 @@ end;
 
 procedure TForm1.Button6Click(Sender: TObject);
 begin
-    if VarMoveToStatssOld.Suspended then begin
-      VarMoveToStatssOld.Resume;
-      Button6.Caption := 'Stop MoveToStatss_oldThread';
+    if not Assigned(VarMoveToStatssOld) then begin
+       VarMoveToStatssOld := TMoveToStatss_oldThreadThread.Create(true);
+       VarMoveToStatssOld.FreeOnTerminate := free_on_term;
+       VarMoveToStatssOld.Start;
+       Button6.Caption := 'Stop MoveToStatss_oldThread';
     end
     else begin
       Button6.Caption := 'Start MoveToStatss_oldThread';
-      VarMoveToStatssOld.Suspend;
+      VarMoveToStatssOld.Terminate;
+      if not free_on_term then begin
+        VarMoveToStatssOld.WaitFor;
+        FreeAndNil(VarMoveToStatssOld);
+      end;
     end;
 end;
 
@@ -517,7 +525,14 @@ try
   GlobCritSect.Enter;
   SaveLogToFile(LogFileName,'Destroying My_timer_5minThread begin');
   GlobCritSect.Leave;
-  if Assigned(My_timer_5min) then My_timer_5min.Free;
+  if Assigned(My_timer_5min) then
+  begin
+    My_timer_5min.Terminate;
+    if not free_on_term then begin
+      My_timer_5min.WaitFor;
+      My_timer_5min.Free;
+    end;
+  end;
   dec(CountThreads);
   lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
   Application.ProcessMessages;
@@ -532,7 +547,12 @@ try
    GlobCritSect.Leave;
    for i := 0 to High(MyTimerThread) do
     if Assigned(MyTimerThread[i]) then begin
-      MyTimerThread[i].Free;
+      MyTimerThread[i].Terminate;
+      if not free_on_term then begin
+        MyTimerThread[i].WaitFor;
+        MyTimerThread[i].Free;
+      end;
+
       dec(CountThreads);
       lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
       Application.ProcessMessages;
@@ -546,7 +566,7 @@ try
   GlobCritSect.Enter;
   SaveLogToFile(LogFileName,'Destroying SyncThread begin');
   GlobCritSect.Leave;
-  if Assigned(MySyncThread) then MySyncThread.free;
+  if Assigned(MySyncThread) then MySyncThread.Terminate;
   dec(CountThreads);
   lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
   Application.ProcessMessages;
@@ -555,7 +575,13 @@ try
 
   SaveLogToFile(LogFileName,'Destroying MoveToStatssOldThread begin');
   GlobCritSect.Leave;
-    if Assigned(VarMoveToStatssOld) then VarMoveToStatssOld.free;
+    if Assigned(VarMoveToStatssOld) then begin
+      VarMoveToStatssOld.Terminate;
+      if not free_on_term then begin
+        VarMoveToStatssOld.WaitFor;
+        VarMoveToStatssOld.Free;
+      end;
+    end;
     dec(CountThreads);
   lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
   Application.ProcessMessages;
@@ -565,7 +591,7 @@ try
 
   {  if Assigned(MyThreadTimerWifiOff) then  begin
     MyThreadTimerWifiOff.Terminate;
-    if MyThreadTimerWifiOff.Suspended then MyThreadTimerWifiOff.Resume;
+    if MyThreadTimerWifiOff.Suspended then MyThreadTimerWifiOff.Start;
   end;
 //  SetLength(ArrayIdModems5MinNoPing,0);
   GlobCritSect.Enter;
@@ -580,7 +606,7 @@ end;
 procedure TForm1.RxTrayIcon1Click(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  RxTrayIcon1.Visible := false;
+  RxTrayIcon.Active := false;
   ShowWindow(Application.Handle,SW_SHOW);
   ShowWindow(Handle,SW_SHOW);
   Application.Restore;

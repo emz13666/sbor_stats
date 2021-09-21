@@ -35,10 +35,10 @@ type
     procedure WriteToForm;
     procedure WriteToForm_lte;
     procedure WriteToForm_ping;
+    procedure WriteToForm_AP;
     procedure SaveToLocalDB;
     procedure SaveToLocalDB_LTE;
     procedure SaveToLocalDB_ping;
-    procedure WriteToForm_AP;
     procedure SaveToLocalDB_AP;
     procedure UpdateMemoOnForm;
     procedure Execute; override;
@@ -837,16 +837,16 @@ end;
 procedure TMyTimerThread.WriteToForm;
 begin
   if Terminated then Exit;
-  GlobCritSect.Enter;
+//  GlobCritSect.Enter;
   try
-   if not Form1.RxTrayIcon1.Visible then
-    Form1.Label4.Caption:=IntToStr(Form1.statss_local.RecordCount);
-    GlobCritSect.Leave;
+   if (not Form1.RxTrayIcon.Active)and FormCreated then
+    if Form1.statss_local.Active then Form1.Label4.Caption:=IntToStr(Form1.statss_local.RecordCount);
+  //  GlobCritSect.Leave;
   except
    on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
     UpdateMemoOnForm;
-    GlobCritSect.Leave;
+    //GlobCritSect.Leave;
    end;
   end;
 end;
@@ -854,16 +854,16 @@ end;
 procedure TMyTimerThread.WriteToForm_AP;
 begin
   if Terminated then Exit;
-  GlobCritSect.Enter;
+//  GlobCritSect.Enter;
   try
-    if not Form1.RxTrayIcon1.Visible then
+    if not Form1.RxTrayIcon.Active and FormCreated  then
       Form1.Label5.Caption:=IntToStr(Form1.stats_ap_local.RecordCount);
-    GlobCritSect.Leave;
+  //  GlobCritSect.Leave;
   except
    on E:Exception do begin
       SaveLogToFile(LogFileName,'Œ¯Ë·Í‡ ‚ WriteToForm_AP. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
       UpdateMemoOnForm;
-      GlobCritSect.Leave;
+    //  GlobCritSect.Leave;
    end;
   end;
 end;
@@ -871,16 +871,16 @@ end;
 procedure TMyTimerThread.WriteToForm_lte;
 begin
   if Terminated then Exit;
-  GlobCritSect.Enter;
+//  GlobCritSect.Enter;
   try
-   if not Form1.RxTrayIcon1.Visible then
+   if not Form1.RxTrayIcon.Active and FormCreated then
     if Form1.stats_lte.Active then Form1.Label9.Caption:=IntToStr(Form1.stats_lte.RecordCount);
-    GlobCritSect.Leave;
+//    GlobCritSect.Leave;
   except
    on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm_lte. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
     UpdateMemoOnForm;
-    GlobCritSect.Leave;
+//    GlobCritSect.Leave;
    end;
   end;
 end;
@@ -888,16 +888,16 @@ end;
 procedure TMyTimerThread.WriteToForm_ping;
 begin
   if Terminated then Exit;
-  GlobCritSect.Enter;
+//  GlobCritSect.Enter;
   try
-   if not Form1.RxTrayIcon1.Visible then
+   if not Form1.RxTrayIcon.Active and FormCreated  then
     if Form1.stats_ping.Active then Form1.lblCountPing.Caption:=IntToStr(Form1.stats_ping.RecordCount);
-    GlobCritSect.Leave;
+  //  GlobCritSect.Leave;
   except
    on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
     UpdateMemoOnForm;
-    GlobCritSect.Leave;
+    //GlobCritSect.Leave;
    end;
   end;
 end;

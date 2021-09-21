@@ -272,3 +272,133 @@
 17.09.2021 23:23:23: Destroying MoveToStatssOldThread begin
 17.09.2021 23:23:23: Destroying MoveToStatssOldThread end
 17.09.2021 23:24:07: Exiting...
+21.09.2021 11:16:19: InitThreads begin...
+21.09.2021 11:17:11: InitThreads done.
+21.09.2021 11:17:37: Destroying My_timer_5minThread begin
+21.09.2021 11:17:37: Destroying My_timer_5minThread end
+21.09.2021 11:17:37: Destroing modem's threads begin
+21.09.2021 11:17:43: Error in DoWork. Modem:A138 (EAccessViolation: Access violation at address 0043D002 in module 'Sbor_stats.exe'. Read of address 00300042)
+21.09.2021 11:28:30: InitThreads begin...
+21.09.2021 11:33:49: InitThreads begin...
+21.09.2021 11:38:53: InitThreads begin...
+21.09.2021 11:40:35: InitThreads begin...
+21.09.2021 11:42:29: InitThreads begin...
+21.09.2021 11:43:39: InitThreads begin...
+21.09.2021 11:45:23: InitThreads begin...
+21.09.2021 11:49:46: InitThreads begin...
+21.09.2021 11:51:39: InitThreads begin...
+21.09.2021 11:54:59: InitThreads begin...
+21.09.2021 11:56:49: InitThreads done.
+21.09.2021 12:04:28: InitThreads begin...
+21.09.2021 12:05:41: InitThreads done.
+21.09.2021 12:07:40: InitThreads begin...
+21.09.2021 12:08:50: InitThreads done.
+21.09.2021 12:30:03: InitThreads begin...
+21.09.2021 12:30:54: InitThreads done.
+21.09.2021 12:48:34: InitThreads begin...
+21.09.2021 12:49:28: InitThreads done.
+21.09.2021 12:53:07: InitThreads begin...
+21.09.2021 12:54:33: InitThreads begin...
+21.09.2021 12:55:26: InitThreads done.
+21.09.2021 12:55:55: InitThreads begin...
+21.09.2021 12:56:48: InitThreads done.
+21.09.2021 13:17:29: InitThreads begin...
+21.09.2021 13:30:49: InitThreads begin...
+21.09.2021 13:31:35: InitThreads done.
+21.09.2021 13:32:26: Destroying My_timer_5minThread begin
+21.09.2021 13:32:33: Destroying My_timer_5minThread end
+21.09.2021 13:32:36: Destroing modem's threads begin
+21.09.2021 13:32:48: Error in DoWork. Modem:A125 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:33:01: Error in DoWork_new. Modem:Drill108 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:33:04: Error in DoWork_new. Modem:SZM131 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:33:05: Error in DoWork_new. Modem:SZM132 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:33:15: Destroing modem's threads end
+21.09.2021 13:33:18: Destroying SyncThread begin
+21.09.2021 13:33:28: Destroying SyncThread end
+21.09.2021 13:33:28: Destroying MoveToStatssOldThread begin
+21.09.2021 13:33:28: Destroying MoveToStatssOldThread end
+21.09.2021 13:33:28: Exiting...
+21.09.2021 13:34:01: InitThreads begin...
+21.09.2021 13:34:46: InitThreads done.
+21.09.2021 13:35:30: Destroying My_timer_5minThread begin
+21.09.2021 13:35:30: Destroying My_timer_5minThread end
+21.09.2021 13:35:31: Destroing modem's threads begin
+21.09.2021 13:35:47: Error in DoWork_new. Modem:Drill106 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:35:53: Error in DoWork_new. Modem:SZM131 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:35:55: Error in DoWork_new. Modem:SZM132 (EAccessViolation: Access violation at address 004069AC in module 'Sbor_stats.exe'. Read of address 00000004)
+21.09.2021 13:36:05: Destroing modem's threads end
+21.09.2021 13:36:05: Destroying SyncThread begin
+21.09.2021 13:36:05: Destroying SyncThread end
+21.09.2021 13:36:05: Destroying MoveToStatssOldThread begin
+21.09.2021 13:36:05: Destroying MoveToStatssOldThread end
+21.09.2021 13:52:52: InitThreads begin...
+21.09.2021 13:59:54: InitThreads begin...
+21.09.2021 14:00:44: InitThreads done.
+21.09.2021 14:02:11: Destroying My_timer_5minThread begin
+21.09.2021 14:02:16: Destroying My_timer_5minThread end
+21.09.2021 14:02:18: Destroing modem's threads begin
+21.09.2021 14:02:35: Destroing modem's threads end
+21.09.2021 14:02:36: Destroying SyncThread begin
+21.09.2021 14:02:36: Destroying SyncThread end
+21.09.2021 14:02:36: Destroying MoveToStatssOldThread begin
+21.09.2021 14:02:36: Destroying MoveToStatssOldThread end
+21.09.2021 14:02:36: Exiting...
+21.09.2021 14:03:27: Exiting...
+21.09.2021 14:09:18: InitThreads begin...
+21.09.2021 14:10:09: InitThreads done.
+21.09.2021 14:23:03: InitThreads begin...
+21.09.2021 14:23:49: InitThreads done.
+21.09.2021 14:23:58: Destroying My_timer_5minThread begin
+21.09.2021 14:23:59: Destroying My_timer_5minThread end
+21.09.2021 14:23:59: Destroing modem's threads begin
+21.09.2021 14:24:09: Destroing modem's threads end
+21.09.2021 14:24:09: Destroying SyncThread begin
+21.09.2021 14:24:09: Destroying SyncThread end
+21.09.2021 14:24:09: Destroying MoveToStatssOldThread begin
+21.09.2021 14:24:09: Destroying MoveToStatssOldThread end
+21.09.2021 14:24:09: Exiting...
+21.09.2021 14:24:27: Exiting...
+21.09.2021 14:39:47: InitThreads begin...
+21.09.2021 14:40:32: InitThreads done.
+21.09.2021 14:40:42: Destroying My_timer_5minThread begin
+21.09.2021 14:40:52: Destroying My_timer_5minThread end
+21.09.2021 14:40:52: Destroing modem's threads begin
+21.09.2021 14:41:18: Destroing modem's threads end
+21.09.2021 14:41:18: Destroying SyncThread begin
+21.09.2021 14:41:18: Destroying SyncThread end
+21.09.2021 14:41:18: Destroying MoveToStatssOldThread begin
+21.09.2021 14:41:18: Destroying MoveToStatssOldThread end
+21.09.2021 14:41:18: Exiting...
+21.09.2021 14:41:33: InitThreads begin...
+21.09.2021 14:42:19: InitThreads done.
+21.09.2021 14:43:03: Destroying My_timer_5minThread begin
+21.09.2021 14:43:03: Destroying My_timer_5minThread end
+21.09.2021 14:43:03: Destroing modem's threads begin
+21.09.2021 14:43:28: Destroing modem's threads end
+21.09.2021 14:43:28: Destroying SyncThread begin
+21.09.2021 14:43:28: Destroying SyncThread end
+21.09.2021 14:43:28: Destroying MoveToStatssOldThread begin
+21.09.2021 14:43:51: Error in destroying threads. (EThread: Cannot terminate an externally created thread)
+21.09.2021 14:43:51: Exiting...
+21.09.2021 14:45:25: InitThreads begin...
+21.09.2021 14:46:11: InitThreads done.
+21.09.2021 14:46:41: Destroying My_timer_5minThread begin
+21.09.2021 14:46:41: Destroying My_timer_5minThread end
+21.09.2021 14:46:41: Destroing modem's threads begin
+21.09.2021 14:46:56: Destroing modem's threads end
+21.09.2021 14:46:56: Destroying SyncThread begin
+21.09.2021 14:46:56: Destroying SyncThread end
+21.09.2021 14:46:56: Destroying MoveToStatssOldThread begin
+21.09.2021 14:48:03: InitThreads begin...
+21.09.2021 14:48:50: InitThreads done.
+21.09.2021 14:57:27: InitThreads begin...
+21.09.2021 14:58:17: InitThreads done.
+21.09.2021 15:02:23: Destroying My_timer_5minThread begin
+21.09.2021 15:02:23: Destroying My_timer_5minThread end
+21.09.2021 15:02:23: Destroing modem's threads begin
+21.09.2021 15:02:48: Destroing modem's threads end
+21.09.2021 15:02:48: Destroying SyncThread begin
+21.09.2021 15:02:48: Destroying SyncThread end
+21.09.2021 15:02:48: Destroying MoveToStatssOldThread begin
+21.09.2021 15:02:48: Destroying MoveToStatssOldThread end
+21.09.2021 15:02:48: Exiting...

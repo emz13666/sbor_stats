@@ -127,6 +127,8 @@ begin
  try
   try
     for i := 0 to high(MyTimerThread) do
+    begin
+      if Terminated then Break;
       if (not Terminated) and Assigned(MyTimerThread[i]) then
       begin
         if MyTimerThread[i].f_is_lte then Continue;
@@ -159,9 +161,9 @@ begin
                Synchronize(UpdateMemoOnForm);
                MyTimerThread[i].f_firmware_thread:= f_firmware;
              end;
-
           end;
       end;
+    end;
   except
    on E:Exception do
    begin
