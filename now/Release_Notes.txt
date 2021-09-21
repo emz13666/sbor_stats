@@ -162,3 +162,14 @@ if tx_octets_eth0='' then tx_octets_eth0 :='0';
 
 2021-09-19
 Нашёл ошибку, которая возникает после настройки  ap_repeater-а - в потоке не устанавливался mac_wds_peer. Исправил.
+
+2021-09-21
+Исправил пинг кобусов СЗМ в БВУ - пинговался булит, у кобуса ip-адрес на 2 больше.
+Добавил GlobCritSect.Enter и GlobCritSect.Leave во writeToForm - попытка исправить иногда возникающую ошибку доступа (Ошибка при выполнении GetCountLocalStatss_lte в потоке синхронизации (EFCreateError: Cannot create file "E:\sbor_stats\sbor_stats\2021-08-16\stats_lte.cds". Запрошенную операцию нельзя выполнить для файла с открытой пользователем сопоставленной секцией)
+Закомментировал пока вот этот код во всех GetCountLocal (уже не помню, зачем он вообще) - для попытки исправить вышеназванную ошибку.
+    (*if rec_count_local_stats_ping=0 then begin
+      form1.stats_ping.EmptyDataSet;
+      form1.stats_ping.SaveToFile();
+      form1.stats_ping.Close;
+      form1.stats_ping.Open;
+    end;*)

@@ -253,12 +253,16 @@ begin
     Form1.statss_local.Last;
     rec_count_local_statss := Form1.statss_local.RecordCount;
     Form1.statss_local.First;
+(* Убрал пока -  иногда бывает Ошибка при выполнении GetCountLocalStatss в потоке синхронизации
+(EFCreateError: Cannot create file "E:\sbor_stats\sbor_stats\2021-08-16\statss_local.cds".
+Запрошенную операцию нельзя выполнить для файла с открытой пользователем сопоставленной секцией)
+
     if rec_count_local_statss=0 then begin
       form1.statss_local.EmptyDataSet;
       form1.statss_local.SaveToFile();
       form1.statss_local.Close;
       form1.statss_local.Open;
-    end;
+    end;         *)
     GlobCritSect.Leave;
   except
    on E:Exception do
@@ -278,12 +282,18 @@ begin
     Form1.stats_ap_local.Last;
     rec_count_local_statss_ap := Form1.stats_ap_local.RecordCount;
     Form1.stats_ap_local.First;
+
+    (* Убрал пока -  иногда бывает Ошибка при выполнении GetCountLocalStatss_ap в потоке синхронизации
+(EFCreateError: Cannot create file "E:\sbor_stats\sbor_stats\2021-08-16\statss_ap_local.cds".
+Запрошенную операцию нельзя выполнить для файла с открытой пользователем сопоставленной секцией)
+
     if rec_count_local_statss_ap=0 then begin
       form1.stats_ap_local.EmptyDataSet;
       form1.stats_ap_local.SaveToFile();
       form1.stats_ap_local.Close;
       form1.stats_ap_local.Open;
     end;
+    *)
     GlobCritSect.Leave;
   except
     on E:Exception do
@@ -303,12 +313,15 @@ begin
     Form1.stats_lte.Last;
     rec_count_local_stats_lte := Form1.stats_lte.RecordCount;
     Form1.stats_lte.First;
+(* Убрал пока -  иногда бывает Ошибка при выполнении GetCountLocalStatss_lte в потоке синхронизации
+(EFCreateError: Cannot create file "E:\sbor_stats\sbor_stats\2021-08-16\stats_lte.cds".
+Запрошенную операцию нельзя выполнить для файла с открытой пользователем сопоставленной секцией)
     if rec_count_local_stats_lte=0 then begin
       form1.stats_lte.EmptyDataSet;
       form1.stats_lte.SaveToFile();
       form1.stats_lte.Close;
       form1.stats_lte.Open;
-    end;
+    end;*)
     GlobCritSect.Leave;
   except
     on E:Exception do
@@ -328,12 +341,16 @@ begin
     Form1.stats_ping.Last;
     rec_count_local_stats_ping := Form1.stats_ping.RecordCount;
     Form1.stats_ping.First;
+(* Убрал пока -  иногда бывает Ошибка при выполнении GetCountLocalStatss_ping в потоке синхронизации
+(EFCreateError: Cannot create file "E:\sbor_stats\sbor_stats\2021-08-16\stats_ping.cds".
+Запрошенную операцию нельзя выполнить для файла с открытой пользователем сопоставленной секцией)
+
     if rec_count_local_stats_ping=0 then begin
       form1.stats_ping.EmptyDataSet;
       form1.stats_ping.SaveToFile();
       form1.stats_ping.Close;
       form1.stats_ping.Open;
-    end;
+    end;*)
     GlobCritSect.Leave;
   except
     on E:Exception do

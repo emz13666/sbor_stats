@@ -31,6 +31,10 @@ CREATE DEFINER=`root`@`%` PROCEDURE `del_old_from_stats`()
 BEGIN
   DECLARE affected_rows INT DEFAULT 0;
   DECLARE count_rows INT DEFAULT 0;
+  DECLARE count INT DEFAULT 1;
+  DECLARE lastdate varchar(10);
+ -- DECLARE var_sql varchar(100);
+  
   call resetLog ();
   REPEAT 
     DELETE FROM `stats_ap` where date<=DATE_SUB(curdate(),INTERVAL 70 day) LIMIT 50000;
@@ -63,7 +67,7 @@ BEGIN
   END REPEAT;
   set count_rows=0;
   REPEAT
-    delete from `stats_status` where datetimeend<=DATE_SUB(curdate(),interval 70 day) LIMIT 50000;
+    delete  from `stats_status` where datetimeend<=DATE_SUB(curdate(),interval 70 day) LIMIT 50000;
     SELECT ROW_COUNT() INTO affected_rows;
     set count_rows = count_rows + affected_rows;
     if affected_rows <> 0 then
@@ -72,14 +76,22 @@ BEGIN
   UNTIL affected_rows=0
   END REPEAT;
   set count_rows=0;
+  set count=1;
   REPEAT
-   DELETE /* proc del_old_from stats */ FROM `statss` where date<=DATE_SUB(curdate(),INTERVAL 70 day) limit 50000;
+   SET lastdate=DATE_SUB(curdate(),INTERVAL 70 day);
+   -- call dolog(concat_ws(': ','lastdate',  lastdate));
+   SET @var_sql = CONCAT('DELETE /* del_old_from_stats: ', count, ' */ FROM `statss` where date<=\'', lastdate, '\' limit 50000');
+   -- call dolog(concat_ws(': ','@var_sql',  @var_sql));
+   PREPARE zxc FROM @var_sql;
+   EXECUTE zxc;
+   -- DELETE /* proc del_old_from stats */ FROM `statss` where date<=DATE_SUB(curdate(),INTERVAL 70 day) limit 50000;
    SELECT ROW_COUNT() INTO affected_rows;
     set count_rows = count_rows + affected_rows;
+    set count=count+1;
     if affected_rows <> 0 then 
       call dolog(concat_ws(': ','CountDeletedRowsIn_statss',  count_rows));
 	end if;
-  UNTIL affected_rows=0  
+  UNTIL affected_rows=0
   END REPEAT;
 END$$
 

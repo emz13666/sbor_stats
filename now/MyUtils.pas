@@ -50,7 +50,7 @@ type
 // Конец работы с версией файла
 
 
-function LastPos(substr, s:string):integer;
+function LastPos(substr, s:string):integer; //Поиск последнего вхождения подстроки в строку
 Procedure CopyEXEVersion(ExeName, subfolder:string); // Процедура создания копии ехе файла определенной версии
 function DelDoubleSpaces(OldText:String):string;  // Функция для удаления двойных пробелов
 function getMonthNumByString(str:string):integer; // Получить номер месяца по 3 буквам названия
@@ -61,7 +61,7 @@ function DateToShift(dt:TDate; tm:TTime):integer; // Функция для определения ном
 function GetShiftindex(dttm:TDateTime):integer;   // Определение номера смены по дате и времени
 function ShiftAndSecToDateTime(shiftindex, seconds:integer):TDateTime;  // Функция, преобразуюжая номер смены и количество секунд с начала смены в формат дата время
 function MSecondToTime(const miliSeconds: Cardinal): TTime; //Перевести секунды в формат времени
-function IsIPAddress(str: string): boolean; // Является ли строка IP Адресом
+function IsIPAddress(str: Widestring): boolean; // Является ли строка IP Адресом
 function DateTimeToTimeStamp1970(dt:TDateTime):Longint; // Определение количества секунд, которые прошли с 01.01.1970 до момента dt
 function GetSpecialFolderPath(folder : integer) : string; // Получение пути к специальному каталогу
 function ANSI2KOI8R(S: string): string;            // Конвертация из ANSI в KOI8R
@@ -74,8 +74,22 @@ function ShiftNameToDateTime(shiftname:string):TDateTime;      // Получение даты
 function LinesCount(const Filename: string): Integer;          // Количество строк в текстовом файле
 function GetModularStatusName(status:shortint):string;   // Получение названия статуса по номеру
 function BooleanToString (FValue: boolean):AnsiString;
+function AddIPaddress(ip_addr: WideString; val:integer):WideString; //Прибавить val к ip-адресу
 
 implementation
+
+function AddIPaddress(ip_addr: WideString; val:integer):WideString;
+var lastByte:WideString; lastpos_point,lastByteInt: integer;
+begin
+  Result := ip_addr;
+  if IsIPAddress(ip_addr) then
+   begin
+    lastpos_point := LastPos('.',ip_addr);
+    lastByte := Copy(ip_addr,lastpos_point+1,length(ip_addr)-lastpos_point);
+    lastByteInt := StrToInt(lastByte);
+    Result := Copy(ip_addr,1,lastpos_point)+IntToStr(lastByteInt+val);
+   end;
+end;
 
 function BooleanToString (FValue: boolean):AnsiString;
 begin
@@ -345,9 +359,9 @@ begin
 end;
 
 // Является ли строка IP Адресом
-function IsIPAddress(str: string): boolean;
+function IsIPAddress(str: Widestring): boolean;
 var pos1,copyindex,deleteindex:integer;
-    str1 : string;
+    str1 : Widestring;
     digit:integer;
     countDigit:shortint;
 begin

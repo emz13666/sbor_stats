@@ -257,9 +257,10 @@ begin
           Inc(CountThreads);
           MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
           MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
-          if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
+          if Modems.FieldByName('equipment_type').AsInteger=6 {SZM} then
           begin
-            MyTimerThread[high(MyTimerThread)].f_host_alias := Modems.FieldByName('ip_alias').AsString;
+            //Пингуем кобус_алиас(ip_alias+2)
+            MyTimerThread[high(MyTimerThread)].f_host_alias := AddIPaddress(Modems.FieldByName('ip_alias').AsString,2);
             MyTimerThread[high(MyTimerThread)].f_is_alias := true;
           end
           else
