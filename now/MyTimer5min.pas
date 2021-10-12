@@ -14,6 +14,7 @@ type
   protected
     procedure SaveFirmwareToMySQL(F_IDModem, f_firmware: AnsiString);
     procedure Do_Work;
+    procedure SaveToDisk;
     procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
@@ -82,11 +83,12 @@ begin
   repeat
      // 1 раз в 5 минут проверяем на устройстве версию прошивки и обновляем её в базе при необходимости
      //1 раз в 5 минут считываем из базы параметр is_ap_repeater
-
+     //1 раз в 5 минут сбрасываем на диск из TClientDataSet (stats_local, stats_ping, stats_lte, stats_ap_local)
      //sleep 5 мин
      begin_tick := GetTickCount;
      while ((GetTickCount - begin_tick) < 5*60*1000) do
        if not Terminated then sleep(10) else break;
+     SaveToDisk;  
      Do_Work;
   until Terminated;
 end;
@@ -203,6 +205,71 @@ begin
       AQuery.Close;
       AConn.Close;
  end;
+end;
+
+procedure TMyTimer5minThread.SaveToDisk;
+var fn: AnsiString;
+begin
+  // сохраняем из локальных таблиц статистики на диск
+    GlobCritSect.Enter;
+    try
+      with Form1 do begin
+        if flag_debug then SaveLogToFile(LogFileName,'Начало сохранения из локальных таблиц статистики на диск...');
+
+        statss_local.SaveToFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in statss_local before EmptyDataSet: '+ IntToStr(statss_local.RecordCount));
+        fn :=statss_local.FileName;
+        statss_local.FileName := '';
+        statss_local.EmptyDataSet;
+        statss_local.Close;
+        statss_local.Open;
+        if flag_debug then SaveLogToFile(LogFileName,'Count in statss_local after EmptyDataSet and reopen, before loadFromFile: '+ IntToStr(statss_local.RecordCount));
+        statss_local.FileName := fn;
+        statss_local.LoadFromFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in statss_local after EmptyDataSet and reopen, after loadFromFile: '+ IntToStr(statss_local.RecordCount));
+
+        stats_ap_local.SaveToFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ap_local before EmptyDataSet: '+ IntToStr(stats_ap_local.RecordCount));
+        fn := stats_ap_local.FileName;
+        stats_ap_local.FileName := '';
+        stats_ap_local.EmptyDataSet;
+        stats_ap_local.Close;
+        stats_ap_local.Open;
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ap_local after EmptyDataSet and reopen, before loadFromFile: '+ IntToStr(stats_ap_local.RecordCount));
+        stats_ap_local.FileName := fn;
+        stats_ap_local.LoadFromFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ap_local after EmptyDataSet and reopen, after loadFromFile: '+ IntToStr(stats_ap_local.RecordCount));
+        
+        stats_lte.SaveToFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_lte before EmptyDataSet: '+ IntToStr(stats_lte.RecordCount));        
+        fn := stats_lte.FileName;
+        stats_lte.FileName :='';
+        stats_lte.EmptyDataSet;
+        stats_lte.Close;
+        stats_lte.Open;
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_lte after EmptyDataSet and reopen, before loadFromFile: '+ IntToStr(stats_lte.RecordCount));
+        stats_lte.FileName := fn;
+        stats_ap_local.LoadFromFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_lte after EmptyDataSet and reopen, after loadFromFile: '+ IntToStr(stats_lte.RecordCount));
+        
+        stats_ping.SaveToFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ping before EmptyDataSet: '+ IntToStr(stats_ping.RecordCount));        
+        fn := stats_ping.FileName;
+        stats_ping.FileName := '';
+        stats_ping.EmptyDataSet;
+        stats_ping.Close;
+        stats_ping.Open;
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ping after EmptyDataSet and reopen, before loadFromFile: '+ IntToStr(stats_ping.RecordCount));
+        stats_ping.FileName := fn;
+        stats_ping.LoadFromFile();
+        if flag_debug then SaveLogToFile(LogFileName,'Count in stats_ping after EmptyDataSet and reopen, after loadFromFile: '+ IntToStr(stats_ping.RecordCount));        
+                
+        if flag_debug then SaveLogToFile(LogFileName,'Конец сохранения из локальных таблиц статистики на диск.');
+        if flag_debug then Synchronize(UpdateMemoOnForm);
+      end;
+    finally
+      GlobCritSect.Leave;
+    end;
 end;
 
 procedure TMyTimer5minThread.UpdateMemoOnForm;

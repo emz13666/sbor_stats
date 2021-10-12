@@ -857,7 +857,7 @@ begin
 //  GlobCritSect.Enter;
   try
     if not Form1.RxTrayIcon.Active and FormCreated  then
-      Form1.Label5.Caption:=IntToStr(Form1.stats_ap_local.RecordCount);
+      Form1.Label5.Caption := IntToStr(Form1.stats_ap_local.RecordCount);
   //  GlobCritSect.Leave;
   except
    on E:Exception do begin

@@ -116,7 +116,9 @@ type
     { Public declarations }
   end;
 
-const free_on_term = false;
+const
+  free_on_term = false;
+  flag_debug = true;
 
 var
   Form1: TForm1;

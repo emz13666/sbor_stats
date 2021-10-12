@@ -323,8 +323,8 @@ object Form1: TForm1
   object stats_ap_local: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 320
-    Top = 96
+    Left = 192
+    Top = 8
     object stats_ap_localid: TAutoIncField
       FieldName = 'id'
     end
@@ -359,8 +359,8 @@ object Form1: TForm1
   object statss_local: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 320
-    Top = 40
+    Left = 120
+    Top = 8
     object statss_localid: TAutoIncField
       FieldName = 'id'
     end
@@ -412,14 +412,14 @@ object Form1: TForm1
       '_ubiquiti'
     LoginPrompt = False
     Provider = 'MSDASQL.1'
-    Left = 473
-    Top = 16
+    Left = 505
+    Top = 56
   end
   object stats_lte: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 320
-    Top = 144
+    Left = 256
+    Top = 8
     object stats_lteid: TAutoIncField
       FieldName = 'id'
     end
@@ -448,8 +448,8 @@ object Form1: TForm1
   object stats_ping: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 240
-    Top = 48
+    Left = 48
+    Top = 8
     object stats_pingid: TAutoIncField
       FieldName = 'id'
     end
