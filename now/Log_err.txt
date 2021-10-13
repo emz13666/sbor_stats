@@ -402,3 +402,14 @@
 21.09.2021 15:02:48: Destroying MoveToStatssOldThread begin
 21.09.2021 15:02:48: Destroying MoveToStatssOldThread end
 21.09.2021 15:02:48: Exiting...
+13.10.2021 09:28:18: InitThreads begin...
+13.10.2021 09:29:10: InitThreads done.
+13.10.2021 09:29:40: Destroying My_timer_5minThread begin
+13.10.2021 09:29:40: Destroying My_timer_5minThread end
+13.10.2021 09:29:40: Destroing modem's threads begin
+13.10.2021 09:30:08: Destroing modem's threads end
+13.10.2021 09:30:08: Destroying SyncThread begin
+13.10.2021 09:30:08: Destroying SyncThread end
+13.10.2021 09:30:08: Destroying MoveToStatssOldThread begin
+13.10.2021 09:30:08: Destroying MoveToStatssOldThread end
+13.10.2021 09:30:08: Exiting...

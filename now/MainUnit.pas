@@ -118,7 +118,7 @@ type
 
 const
   free_on_term = false;
-  flag_debug = true;
+  flag_debug = false;
 
 var
   Form1: TForm1;

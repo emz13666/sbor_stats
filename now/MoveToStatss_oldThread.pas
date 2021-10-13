@@ -1,7 +1,7 @@
 unit MoveToStatss_oldThread;
 
 interface
-uses Windows, Classes, forms,snmpsend,asn1util,ADODB, MyUtils, Messages;
+uses Windows, Classes, forms,snmpsend,asn1util,ADODB, MyUtils, Messages, ActiveX;
 
 type
   TMoveToStatss_oldThreadThread = class(TThread)
@@ -39,13 +39,14 @@ uses SysUtils, MainUnit;
 constructor TMoveToStatss_oldThreadThread.Create(CreateSuspended: Boolean);
 begin
   inherited Create(CreateSuspended);
-  AConn := TADOConnection.Create(Application);
+  CoInitialize(nil);
+  AConn := TADOConnection.Create(nil);
   AConn.ConnectionString := 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql_ubiquiti';
   AConn.Provider := 'MSDASQL.1';
   AConn.LoginPrompt := false;
   AConn.Close;
 
-  AQuery := TADOQuery.Create(Application);
+  AQuery := TADOQuery.Create(nil);
   AQuery.Connection := AConn;
 //  AQuery.ExecuteOptions := [eoAsyncExecute];
   AQuery.Close;
@@ -58,6 +59,7 @@ begin
    FreeAndNil(AQuery);
    AConn.Close;
    FreeAndNil(AConn);
+   CoUninitialize;
   inherited;
 end;
 
