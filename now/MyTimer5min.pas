@@ -63,6 +63,7 @@ begin
   AConn.ConnectionString := 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql_ubiquiti';
   AConn.Provider := 'MSDASQL.1';
   AConn.LoginPrompt := false;
+  AConn.KeepConnection := false;
   AQuery.Connection := AConn;
   AConn.Close;
   snmp := tsnmpsend.Create;
@@ -90,8 +91,9 @@ begin
      begin_tick := GetTickCount;
      while ((GetTickCount - begin_tick) < 5*60*1000) do
        if not Terminated then sleep(10) else break;
-     SaveToDisk;  
+     SaveToDisk;
      Do_Work;
+     AConn.Close;
   until Terminated;
 end;
 
@@ -179,7 +181,6 @@ begin
   end;
  finally
       AQuery.Close;
-      AConn.Close;
  end;
 end;
 
@@ -205,7 +206,6 @@ begin
   end;
  finally
       AQuery.Close;
-      AConn.Close;
  end;
 end;
 

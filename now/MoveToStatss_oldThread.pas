@@ -44,6 +44,7 @@ begin
   AConn.ConnectionString := 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql_ubiquiti';
   AConn.Provider := 'MSDASQL.1';
   AConn.LoginPrompt := false;
+  AConn.KeepConnection := false;
   AConn.Close;
 
   AQuery := TADOQuery.Create(nil);

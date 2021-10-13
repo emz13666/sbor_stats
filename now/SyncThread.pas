@@ -84,6 +84,7 @@ begin
   AConn.Provider := 'MSDASQL.1';
   AConn.LoginPrompt := false;
   AQuery.Connection := AConn;
+  AConn.KeepConnection := false;
   AConn.Close;
 end;
 
@@ -259,6 +260,7 @@ begin
        DoWork_ap;
        DoWork_lte;
        DoWork_ping; //флаг  flag_10minut := false нужно только вот на этом шаге, иначе очистится только первая таблица
+       AConn.Close;
        begin_tick := GetTickCount;
         while GetTickCount - begin_tick < 10000 do
           if not Terminated then sleep(10) else break;
@@ -281,8 +283,8 @@ begin
     if flag_10minut and (rec_count_local_statss=0) then begin
       form1.statss_local.EmptyDataSet;
       form1.statss_local.SaveToFile();
-//      form1.statss_local.Close;
-//      form1.statss_local.Open;
+      form1.statss_local.Close;
+      form1.statss_local.Open;
         if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss=0, EmptyDataSet и SaveToFile');
         if flag_debug then Synchronize(UpdateMemoOnForm);
     end;    (* *)
@@ -311,8 +313,8 @@ begin
     if flag_10minut and (rec_count_local_statss_ap=0) then begin
       form1.stats_ap_local.EmptyDataSet;
       form1.stats_ap_local.SaveToFile();
-//      form1.stats_ap_local.Close;
-//      form1.stats_ap_local.Open;
+      form1.stats_ap_local.Close;
+      form1.stats_ap_local.Open;
         if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss_ap=0, EmptyDataSet и SaveToFile');
         if flag_debug then Synchronize(UpdateMemoOnForm);
     end;
@@ -341,8 +343,8 @@ begin
     if flag_10minut and (rec_count_local_stats_lte=0) then begin
       form1.stats_lte.EmptyDataSet;
       form1.stats_lte.SaveToFile();
-//      form1.stats_lte.Close;
-//      form1.stats_lte.Open;
+      form1.stats_lte.Close;
+      form1.stats_lte.Open;
         if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss_lte=0, EmptyDataSet и SaveToFile');
         if flag_debug then Synchronize(UpdateMemoOnForm);
     end;
@@ -371,8 +373,8 @@ begin
     if flag_10minut and (rec_count_local_stats_ping=0) then begin
       form1.stats_ping.EmptyDataSet;
       form1.stats_ping.SaveToFile();
-//      form1.stats_ping.Close;
-//      form1.stats_ping.Open;
+      form1.stats_ping.Close;
+      form1.stats_ping.Open;
       flag_10minut := false;
         if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss_ping=0, EmptyDataSet и SaveToFile');
         if flag_debug then Synchronize(UpdateMemoOnForm);
@@ -552,7 +554,6 @@ begin
     end;*)
  finally
    AQuery.Close;
-   AConn.Close;
  end;
 end;
 

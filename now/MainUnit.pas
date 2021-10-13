@@ -18,7 +18,6 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Button33: TButton;
-    Query1: TADOQuery;
     Label3: TLabel;
     Label4: TLabel;
     Modems: TADOQuery;
@@ -28,10 +27,7 @@ type
     N3: TMenuItem;
     N4: TMenuItem;
     N5: TMenuItem;
-    ADOConnection2: TADOConnection;
     Button2: TButton;
-    QueryWifi_log: TADOQuery;
-    ConnectionWifi_log: TADOConnection;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
@@ -67,7 +63,6 @@ type
     FormStorage1: TFormStorage;
     chCollectStatsBullet: TCheckBox;
     chkSmotr2: TCheckBox;
-    ADOConnection3: TADOConnection;
     stats_lte: TClientDataSet;
     stats_lteid: TAutoIncField;
     stats_lteid_equipment: TLargeintField;
@@ -357,6 +352,7 @@ begin
   GlobCritSect.Leave;
   fl_threadsDestroyed := False;
   lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
+  ADOConnection1.Close;
 end;
 
 procedure TForm1.FormActivate(Sender: TObject);
@@ -398,21 +394,27 @@ begin
   if not statss_local.Active then statss_local.Open;
   if not stats_ap_local.Active then stats_ap_local.Open;
   if not stats_lte.Active then stats_lte.Open;
+  if not stats_ping.Active then stats_lte.Open;
 
   statss_local.EmptyDataSet;
   stats_ap_local.EmptyDataSet;
   stats_lte.EmptyDataSet;
+  stats_ping.EmptyDataSet;
 
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
   Label9.Caption := IntToStr(stats_lte.RecordCount);
+  lblCountPing.Caption := IntToStr(stats_ping.RecordCount);
+
   statss_local.SaveToFile();
   stats_ap_local.SaveToFile();
   stats_lte.SaveToFile();
+  stats_ping.SaveToFile();
+
   statss_local.Close;
   stats_ap_local.Close;
   stats_lte.Close;
-//  statss_local.LoadFromFile;
+  stats_ping.Close;
 
 end;
 
@@ -498,6 +500,7 @@ begin
   statss_local.Close;
   stats_ap_local.Close;
   stats_lte.Close;
+  stats_ping.Close;
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);

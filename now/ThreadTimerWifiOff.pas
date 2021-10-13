@@ -1,18 +1,21 @@
 unit ThreadTimerWifiOff;
 
 interface
-uses Windows, Classes, forms, SSH_wifi,MyUtils;
+uses Windows, Classes, forms, SSH_wifi, MyUtils, ADODB, ActiveX;
 
 type
   TThreadTimerWifiOff = class(TThread)
   private
     { Private declarations }
+    AQuery: TADOQuery;
+    AConn: TADOConnection;
   protected
     procedure DoWork;
     procedure localdb_close_open;
     procedure Execute; override;
   public
-
+    constructor Create(CreateSuspended: Boolean);
+    destructor Destroy; override;
   end;
 
 
@@ -34,6 +37,35 @@ uses SysUtils, MainUnit;
 
 
 
+constructor TThreadTimerWifiOff.Create(CreateSuspended: Boolean);
+begin
+  inherited Create(CreateSuspended);
+  CoInitialize(nil);
+  AConn := TADOConnection.Create(nil);
+  AConn.ConnectionString := 'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql_ubiquiti';
+  AConn.Provider := 'MSDASQL.1';
+  AConn.LoginPrompt := false;
+  aconn.KeepConnection := false;
+  AConn.Close;
+
+  AQuery := TADOQuery.Create(nil);
+  AQuery.Connection := AConn;
+//  AQuery.ExecuteOptions := [eoAsyncExecute];
+  AQuery.Close;
+
+end;
+
+destructor TThreadTimerWifiOff.Destroy;
+begin
+   AQuery.Close;
+   AQuery.Connection := nil;
+   FreeAndNil(AQuery);
+   AConn.Close;
+   FreeAndNil(AConn);
+   CoUninitialize;
+  inherited;
+end;
+
 procedure TThreadTimerWifiOff.DoWork;
 var
   datetime_proverka: TDateTime;
@@ -50,17 +82,15 @@ begin
 
  datetime_proverka := now;
   try
-  Form1.QueryWifi_log.Close;
-  Form1.ConnectionWifi_log.Close;
-  Form1.QueryWifi_log.SQL.Clear;
-  Form1.QueryWifi_log.SQL.Text := 'SELECT * FROM wifi_log ORDER BY id DESC LIMIT 1';
-  Form1.QueryWifi_log.Open;
-  datetime_proverka := Form1.QueryWifi_log.FieldByName('datetime').AsDateTime;
-  //Form1.Memo1.Lines.Add('datetime_proverka='+Form1.QueryWifi_log.FieldByName('datetime').AsString);
-  Form1.QueryWifi_log.Close;
-  Form1.ConnectionWifi_log.Close;
-  //Form1.Memo1.Lines.Add('now='+FormatDateTime('dd.mm.yyyy hh:nn:ss',now));
-  //Form1.Memo1.Lines.Add('now-datetime_proverka='+FloatToStrF(now-datetime_proverka,ffFixed,7,4));
+    with AQuery do begin
+      Close;
+      SQL.Clear;
+      SQL.Text := 'SELECT * FROM wifi_log ORDER BY id DESC LIMIT 1';
+      Open;
+      datetime_proverka := FieldByName('datetime').AsDateTime;
+      Close;
+    end;
+    AConn.Close;
   except
     //
   end;
@@ -93,14 +123,14 @@ begin
          begin_tick := gettickcount;
          while GetTickCount - begin_tick < 50500 do
            if not Terminated then sleep(10) else break;
-         Form1.QueryWifi_log.SQL.Text := 'insert into wifi_log(datetime, action) values('+
+         AQuery.SQL.Text := 'insert into wifi_log(datetime, action) values('+
                QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss', now))+',''OFA'')';
-         Form1.QueryWifi_log.ExecSQL;
-         Form1.QueryWifi_log.Close;
+         AQuery.ExecSQL;
+         AQuery.Close;
       end else FreeAndNil(sshconn1);
     end else  FreeAndNil(sshconn1);
  finally
-   Form1.QueryWifi_log.Close;
+   AQuery.Close;
    FreeAndNil(sshconn1);
  end;
 end;

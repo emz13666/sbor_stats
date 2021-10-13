@@ -239,23 +239,18 @@ object Form1: TForm1
   object Query: TADOQuery
     Connection = ADOConnection1
     Parameters = <>
-    Left = 440
-    Top = 120
+    Left = 40
+    Top = 176
   end
   object ADOConnection1: TADOConnection
-    Connected = True
     ConnectionString = 
       'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql' +
       '_ubiquiti;'
+    KeepConnection = False
     LoginPrompt = False
-    Left = 136
-    Top = 240
-  end
-  object Query1: TADOQuery
-    Connection = ADOConnection2
-    Parameters = <>
-    Left = 664
-    Top = 88
+    Provider = 'MSDASQL.1'
+    Left = 40
+    Top = 128
   end
   object Modems: TADOQuery
     Connection = ADOConnection1
@@ -270,12 +265,12 @@ object Form1: TForm1
         '    e.useInMonitoring  FROM modems m, equipment e WHERE e.equipm' +
         'ent_type<=3 and e.useInMonitoring=1 and '
       '    e.ip_address=m.ip_address  order by e.name')
-    Left = 224
-    Top = 208
+    Left = 40
+    Top = 224
   end
   object PopupMenu1: TPopupMenu
-    Left = 200
-    Top = 104
+    Left = 328
+    Top = 112
     object N1: TMenuItem
       Caption = #1054#1090#1082#1088#1099#1090#1100
       OnClick = RxTrayIcon1DblClick
@@ -293,32 +288,6 @@ object Form1: TForm1
       Caption = #1042#1099#1081#1090#1080
       OnClick = N5Click
     end
-  end
-  object ADOConnection2: TADOConnection
-    ConnectionString = 
-      'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql' +
-      '_ubiquiti'
-    LoginPrompt = False
-    Provider = 'MSDASQL.1'
-    Left = 657
-    Top = 40
-  end
-  object QueryWifi_log: TADOQuery
-    Connection = ConnectionWifi_log
-    Parameters = <>
-    SQL.Strings = (
-      'SELECT * FROM wifi_log ORDER BY id DESC LIMIT 1 ')
-    Left = 552
-    Top = 248
-  end
-  object ConnectionWifi_log: TADOConnection
-    ConnectionString = 
-      'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql' +
-      '_ubiquiti'
-    LoginPrompt = False
-    Provider = 'MSDASQL.1'
-    Left = 553
-    Top = 192
   end
   object stats_ap_local: TClientDataSet
     Aggregates = <>
@@ -403,17 +372,8 @@ object Form1: TForm1
       'chCollectStatsBullet.Checked'
       'chkSmotr2.Checked')
     StoredValues = <>
-    Left = 384
-    Top = 248
-  end
-  object ADOConnection3: TADOConnection
-    ConnectionString = 
-      'Provider=MSDASQL.1;Persist Security Info=False;Data Source=mysql' +
-      '_ubiquiti'
-    LoginPrompt = False
-    Provider = 'MSDASQL.1'
-    Left = 505
-    Top = 56
+    Left = 328
+    Top = 240
   end
   object stats_lte: TClientDataSet
     Aggregates = <>
@@ -499,7 +459,7 @@ object Form1: TForm1
       BE3FF8DF1F1FF1CE0F8FE3E427C7CFF073F39FF8F9F97FFDFCFEFFFFFFFF}
     PopupMenu = PopupMenu1
     OnDblClick = RxTrayIcon1DblClick
-    Left = 128
+    Left = 328
     Top = 176
   end
 end
