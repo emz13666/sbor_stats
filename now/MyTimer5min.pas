@@ -85,7 +85,7 @@ begin
   { Place thread code here }
   repeat
      // 1 раз в 5 минут провер€ем на устройстве версию прошивки и обновл€ем еЄ в базе при необходимости
-     //1 раз в 5 минут считываем из базы параметр is_ap_repeater
+     //1 раз в 5 минут считываем из базы параметр is_ap_repeater и is_access_point
      //1 раз в 5 минут сбрасываем на диск из TClientDataSet (stats_local, stats_ping, stats_lte, stats_ap_local)
      //sleep 5 мин
      begin_tick := GetTickCount;
@@ -127,7 +127,7 @@ end;
 procedure TMyTimer5minThread.Do_Work;
 var
   i: integer; f_firmware: AnsiString;
-  f_is_ap_rep_old: boolean;
+  f_is_ap_rep_old, f_is_ap_old: boolean;
 begin
   if Terminated then Exit;
  try
@@ -143,7 +143,9 @@ begin
         AQuery.SQL.Text := 'select * from modems where id_equipment='+MyTimerThread[i].f_idEquipment;
         AQuery.Open;
           f_is_ap_rep_old := MyTimerThread[i].f_is_ap_repeater;
+          f_is_ap_old := MyTimerThread[i].f_is_access_point;
           MyTimerThread[i].f_is_ap_repeater := (AQuery.FieldByName('is_ap_repeater').AsInteger=1);
+          MyTimerThread[i].f_is_access_point := (AQuery.FieldByName('is_access_point').AsInteger=1);
           if MyTimerThread[i].f_is_ap_repeater xor f_is_ap_rep_old then begin
             if MyTimerThread[i].f_is_ap_repeater then begin
                 MyTimerThread[i].F_mac_wds_peer := AQuery.FieldByName('mac_wds_peer').AsString;
@@ -152,6 +154,11 @@ begin
             end;
             SaveLogToFile(LogFileName,'‘лаг f_is_ap_repeater дл€ '+ MyTimerThread[i].f_nameModem +
               ' установлен в '+ BooleanToString(MyTimerThread[i].f_is_ap_repeater));
+            Synchronize(UpdateMemoOnForm);
+          end;
+          if MyTimerThread[i].f_is_access_point xor f_is_ap_old then begin
+            SaveLogToFile(LogFileName,'‘лаг f_is_access_point дл€ '+ MyTimerThread[i].f_nameModem +
+              ' установлен в '+ BooleanToString(MyTimerThread[i].f_is_access_point));
             Synchronize(UpdateMemoOnForm);
           end;
 

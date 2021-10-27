@@ -29,6 +29,7 @@ type
     Procedure DoWork;
     Procedure DoWork_new;//for new mibs
     Procedure DoWork_AP;
+
     Procedure DoWork_LTE;
     Procedure DoWork_ping;
     Procedure DoWork_AP_Repeater;
@@ -52,6 +53,7 @@ type
     f_is_alias: boolean;
     f_host_alias: AnsiString;
     F_IDModem: AnsiString;
+    f_eq_type: byte;
     f_idEquipment: AnsiString;
     status_default: byte;
     f_is_access_point: boolean;
@@ -660,22 +662,19 @@ begin
   f_lasttickcount_tx := 0;
   f_lasttickcount_rx := 0;
   repeat
-     if f_is_ap_repeater  then
-       DoWork_AP_Repeater
+     if f_is_access_point and (f_eq_type<>3) then  DoWork_AP
      else
-       if f_is_access_point then
-         DoWork_AP
+       if f_is_ap_repeater  then DoWork_AP_Repeater
        else
-         if f_new then
-           DoWork_new
+         if f_is_access_point then DoWork_AP
          else
-           if f_is_lte then
-             DoWork_LTE
+           if f_new then  DoWork_new
            else
-             if f_is_work_of_ping then
-               DoWork_ping
+             if f_is_lte then DoWork_LTE
              else
-               DoWork;
+               if f_is_work_of_ping then DoWork_ping
+               else
+                 DoWork;
 
      if not (f_is_access_point or f_is_ap_repeater) and f_is_collect_net_stat  then
        if not f_is_lte then
@@ -760,6 +759,22 @@ begin
          stats_ap_localrx_octets_eth0.AsAnsiString := f_rx_octets_eth0;
          stats_ap_localtx_octets_eth0.AsAnsiString := f_tx_octets_eth0;
          stats_ap_local.Post;
+
+         if f_is_access_point and (f_eq_type<>3) then begin
+           if not statss_local.Active then statss_local.Active := true;
+           statss_local.Last;
+           statss_local.Insert;
+           statss_localid_modem.AsInteger := StrToInt(F_IDModem);
+           statss_localid_equipment.AsInteger := StrToInt(f_idEquipment);
+           statss_localmac_ap.AsString := '';
+           statss_localdate.AsString := F_Date;
+           statss_localtime.AsString := F_Time;
+           statss_localsignal_level.AsInteger := strtoint(F_level);
+           statss_localstatus.AsInteger := status_default;
+           statss_local.Post;
+
+         end;
+
          GlobCritSect.Leave;
      except
        on E:Exception do

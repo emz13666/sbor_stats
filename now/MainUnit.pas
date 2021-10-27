@@ -224,6 +224,7 @@ begin
       Inc(CountThreads);
       MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
       MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
+      MyTimerThread[high(MyTimerThread)].f_eq_type := Modems.FieldByName('equipment_type').AsInteger;
       if copy(Modems.FieldByName('name').AsString,1,3)='SZM' then
       begin
         MyTimerThread[high(MyTimerThread)].f_host_alias := Modems.FieldByName('ip_alias').AsString;
@@ -256,6 +257,7 @@ begin
           Inc(CountThreads);
           MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
           MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
+          MyTimerThread[high(MyTimerThread)].f_eq_type := Modems.FieldByName('equipment_type').AsInteger;
           if Modems.FieldByName('equipment_type').AsInteger=6 {SZM} then
           begin
             //Пингуем кобус_алиас(ip_alias+2)
@@ -286,7 +288,7 @@ begin
     modems.Close;
     //Добавляем потоки для сбора статистики модемов LTE
     Query.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, '+
-     ' e.useInMonitoring  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
+     ' e.useInMonitoring, e.equipment_type  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
      'e.id=l.id_equipment order by e.name';
     Query.Open;
     Query.First;
@@ -296,6 +298,7 @@ begin
       MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
       Inc(CountThreads);
       MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id_equipment').AsString;
+      MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
       MyTimerThread[high(MyTimerThread)].f_is_lte := true;
       MyTimerThread[high(MyTimerThread)].f_is_alias := false;
       MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
