@@ -61,6 +61,7 @@ type
     f_is_lte: boolean;
     f_is_ap_repeater: boolean;
     f_is_collect_net_stat: boolean;
+    f_type_lte: AnsiString;
     F_mac_wds_peer: string;
     f_firmware_thread: string;
     constructor Create(CreateSuspended: Boolean; AFHost: AnsiString; AFTimeoutSnmp: integer);
@@ -93,9 +94,13 @@ const
    s4_rx_octets_eth0='1.3.6.1.2.1.2.2.1.10.2';//eth0: The total number of octets received on the interface, including framing characters.
    s5_tx_octets_eth0='1.3.6.1.2.1.2.2.1.16.2';//eth0: The total number of octets transmitted out of the interface, including framing characters.
 
-   s_rsrq_lte='1.3.6.1.4.1.14988.1.1.16.1.1.3';// + '.ifIndexLte' - RSRQ
-   s_rsrp_lte='1.3.6.1.4.1.14988.1.1.16.1.1.4';//+ '.ifIndexLte' - RSRP
-   s_sinr_lte='1.3.6.1.4.1.14988.1.1.16.1.1.7';//+ + '.ifIndexLte' - SINR
+   s_rsrq_lte='1.3.6.1.4.1.14988.1.1.16.1.1.3';// + '.ifIndexLte' - RSRQ(для mikrotik)
+   s_rsrp_lte='1.3.6.1.4.1.14988.1.1.16.1.1.4';//+ '.ifIndexLte' - RSRP (для mikrotik)
+   s_sinr_lte='1.3.6.1.4.1.14988.1.1.16.1.1.7';//+ + '.ifIndexLte' - SINR(для mikrotik)
+
+   s_sinr_lte_rutx='1.3.6.1.4.1.48690.2.2.1.19.1'; // - SINR (teltonika RUTX)
+   s_rsrp_lte_rutx='1.3.6.1.4.1.48690.2.2.1.20.1'; // - RSRP (teltonika RUTX)
+   s_rsrq_lte_rutx='1.3.6.1.4.1.48690.2.2.1.21.1'; // - RSRQ (teltonika RUTX)
 
 implementation
 
@@ -570,7 +575,7 @@ begin
  fl := true;
  fl_noping := false;
  try
-   if not F_IndexInterfaceLTEOk then begin
+   if (not F_IndexInterfaceLTEOk) and (f_type_lte='RBSXTR') then begin
    // Сначала надо определить индекс интерфейса LTE. Для этого запросим все 5 интерфейсов и их описания:
        snmp.Query.Clear;
        snmp.Query.Community:='ubnt_mlink54';
@@ -589,13 +594,24 @@ begin
          end;
        end;
    end;
+   if f_type_lte='RUTX11' then F_IndexInterfaceLTE := 1;
+
 // Выполняем запрос с учётом найденного индекса (при инициализации потока index=1)
    snmp.Query.Clear;
    snmp.Query.Community:='ubnt_mlink54';
    snmp.Query.PDUType := PDUGetRequest;
-   snmp.Query.MIBAdd(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
-   snmp.Query.MIBAdd(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
-   snmp.Query.MIBAdd(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+   if f_type_lte='RBSXTR' then begin
+     snmp.Query.MIBAdd(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+     snmp.Query.MIBAdd(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+     snmp.Query.MIBAdd(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE),'',ASN1_NULL);
+   end
+   else
+     if f_type_lte='RUTX11' then begin
+       snmp.Query.MIBAdd(s_rsrq_lte_rutx,'',ASN1_NULL);
+       snmp.Query.MIBAdd(s_rsrp_lte_rutx,'',ASN1_NULL);
+       snmp.Query.MIBAdd(s_sinr_lte_rutx,'',ASN1_NULL);
+     end;
+
 
    F_Date := FormatDateTime('dd.mm.yyyy',now);
    F_Time := FormatDateTime('hh:nn:ss',now);
@@ -614,10 +630,19 @@ begin
        //ArrayIdModems5MinNoPing[StrToInt(F_IDModem)] := 0;
        IfOfflineMore5min := false;
        f_offline_5min := GetTickCount;
-       F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE));
-       F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE));
-       F_sinr := snmp.Reply.MIBGet(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE));
-       f_online :='1';
+       if f_type_lte='RBSXTR' then begin
+
+         F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte+'.'+IntToStr(F_IndexInterfaceLTE));
+         F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte+'.'+IntToStr(F_IndexInterfaceLTE));
+         F_sinr := snmp.Reply.MIBGet(s_sinr_lte+'.'+IntToStr(F_IndexInterfaceLTE));
+         f_online :='1';
+       end else
+         if f_type_lte='RUTX11' then BEGIN
+           F_rsrp:=snmp.Reply.MIBGet(s_rsrp_lte_rutx);
+           F_rsrq :=snmp.Reply.MIBGet(s_rsrq_lte_rutx);
+           F_sinr := snmp.Reply.MIBGet(s_sinr_lte_rutx);
+           f_online :='1';
+         END;
      end
      else
      begin
@@ -801,9 +826,9 @@ begin
          stats_ltedate.AsString := F_Date;
          stats_ltetime.AsString := F_Time;
          stats_ltedatetime.AsDateTime := F_Datetime;
-         stats_ltesignal_rsrp.AsInteger := StrToInt(F_rsrp);
-         stats_ltesignal_rsrq.AsInteger := StrToInt(F_rsrq);
-         stats_ltesignal_sinr.AsInteger := StrToInt(F_sinr);
+         stats_ltesignal_rsrp.AsInteger := Round(StrToFloat(StringReplace(F_rsrp,'.',',',[rfReplaceAll, rfIgnoreCase])));
+         stats_ltesignal_rsrq.AsInteger := Round(StrToFloat(StringReplace(F_rsrq,'.',',',[rfReplaceAll, rfIgnoreCase])));
+         stats_ltesignal_sinr.AsInteger := Round(StrToFloat(StringReplace(F_sinr,'.',',',[rfReplaceAll, rfIgnoreCase])));
          stats_lte.Post;
          GlobCritSect.Leave;
      except

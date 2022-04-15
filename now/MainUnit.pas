@@ -287,7 +287,7 @@ begin
     end;
     modems.Close;
     //Добавляем потоки для сбора статистики модемов LTE
-    Query.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, '+
+    Query.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, l.model_lte,'+
      ' e.useInMonitoring, e.equipment_type  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
      'e.id=l.id_equipment order by e.name';
     Query.Open;
@@ -300,6 +300,7 @@ begin
       MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id_equipment').AsString;
       MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
       MyTimerThread[high(MyTimerThread)].f_is_lte := true;
+      MyTimerThread[high(MyTimerThread)].f_type_lte := Query.FieldByName('model_lte').AsString;
       MyTimerThread[high(MyTimerThread)].f_is_alias := false;
       MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
       MyTimerThread[high(MyTimerThread)].f_new := false;
