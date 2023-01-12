@@ -27,8 +27,8 @@ type
     N3: TMenuItem;
     N4: TMenuItem;
     N5: TMenuItem;
-    Button2: TButton;
-    Button3: TButton;
+    btnStopSbor: TButton;
+    btnStartSbor: TButton;
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
@@ -85,6 +85,8 @@ type
     lblCountPing: TLabel;
     lblCountThreads: TLabel;
     RxTrayIcon: TRxTrayIcon;
+    TimerCheckRestartSbor: TTimer;
+    QueryCheckRestartSbor: TADOQuery;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -93,16 +95,17 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button33Click(Sender: TObject);
     procedure N5Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure btnStopSborClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Memo1Change(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure btnStartSborClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure RxTrayIcon1Click(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
+    procedure TimerCheckRestartSborTimer(Sender: TObject);
   private
     { Private declarations }
     Procedure InitThreads;
@@ -144,6 +147,30 @@ begin
   Application.BringToFront;
 end;
 
+procedure TForm1.TimerCheckRestartSborTimer(Sender: TObject);
+begin
+// Раз в 2 минуты проверяем переменную в БД - и если она =1 то - рестарт сбор статистики и установка переменной в 0
+  TimerCheckRestartSbor.Enabled := false;
+  with QueryCheckRestartSbor do
+  begin
+    Close;
+    SQL.Text := 'Select name, value from variables where name="restart_sbor"';
+    Open;
+    if (RecordCount=1) then
+      if  (FieldByName('value').AsInteger=1) then
+      begin
+        if btnStopSbor.Enabled then btnStopSborClick(Sender);
+        sleep(1000);
+        if btnStartSbor.Enabled then btnStartSborClick(Sender);
+        Close;
+        Sql.Text := 'Update variables set value=0 where name="restart_sbor"';
+        ExecSQL;
+      end;
+    Close;
+  end;
+  TimerCheckRestartSbor.Enabled := true;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Randomize;
@@ -182,6 +209,7 @@ begin
   edtPingUnreachble.Enabled := false;
   edtPeriodOprosa.Enabled := false;
   FormCreated := true;
+  TimerCheckRestartSbor.Enabled := true;
 end;
 
 procedure TForm1.Hide_appl(Sender: TObject);
@@ -430,17 +458,17 @@ begin
   Close;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TForm1.btnStopSborClick(Sender: TObject);
 var i: integer;
 begin
 
-  Button2.Enabled := false;
+  btnStopSbor.Enabled := false;
   Cursor := crHourGlass;
   Application.ProcessMessages;
 
   DestroyThreads;
 
-  Button3.Enabled := true;
+  btnStartSbor.Enabled := true;
   Cursor := crDefault;
   chkPredvPing.Enabled := true;
   chCollectStatsBullet.Enabled := true;
@@ -469,14 +497,14 @@ begin
 //  Label2.Caption := IntToStr(LogError.Count);
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TForm1.btnStartSborClick(Sender: TObject);
 begin
-  Button3.Enabled := false;
+  btnStartSbor.Enabled := false;
   Cursor := crHourGlass;
 
   InitThreads;
   Application.ProcessMessages;
-  Button2.Enabled := true;
+  btnStopSbor.Enabled := true;
   Cursor := crDefault;
   chkPredvPing.Enabled := false;
   chCollectStatsBullet.Enabled := false;

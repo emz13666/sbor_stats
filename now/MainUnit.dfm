@@ -129,16 +129,16 @@ object Form1: TForm1
     TabOrder = 2
     OnClick = Button33Click
   end
-  object Button2: TButton
+  object btnStopSbor: TButton
     Left = 584
     Top = 381
     Width = 79
     Height = 25
     Caption = 'stop sbor'
     TabOrder = 3
-    OnClick = Button2Click
+    OnClick = btnStopSborClick
   end
-  object Button3: TButton
+  object btnStartSbor: TButton
     Left = 494
     Top = 381
     Width = 75
@@ -146,7 +146,7 @@ object Form1: TForm1
     Caption = 'Start sbor'
     Enabled = False
     TabOrder = 4
-    OnClick = Button3Click
+    OnClick = btnStartSborClick
   end
   object Button4: TButton
     Left = 664
@@ -461,5 +461,18 @@ object Form1: TForm1
     OnDblClick = RxTrayIcon1DblClick
     Left = 328
     Top = 176
+  end
+  object TimerCheckRestartSbor: TTimer
+    Enabled = False
+    Interval = 120000
+    OnTimer = TimerCheckRestartSborTimer
+    Left = 168
+    Top = 128
+  end
+  object QueryCheckRestartSbor: TADOQuery
+    Connection = ADOConnection1
+    Parameters = <>
+    Left = 168
+    Top = 192
   end
 end
