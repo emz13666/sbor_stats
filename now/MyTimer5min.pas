@@ -100,9 +100,9 @@ end;
 function TMyTimer5minThread.ReadFirmwareVer(fHost: AnsiString): AnsiString;
 var s2,s3:AnsiString;
 begin
+  Result := '';
   if Terminated then Exit;
      try
-       Result := '';
        snmp.Query.Clear;
        snmp.Query.Community:='ubnt_mlink54';
        snmp.TargetHost := fHost;
@@ -165,15 +165,13 @@ begin
           f_firmware := ReadFirmwareVer(MyTimerThread[i].f_host);
           if f_firmware<>'' then MyTimerThread[i].f_new := (f_firmware <> '5.5');
           AQuery.Close;
-          if f_firmware<>MyTimerThread[i].f_firmware_thread then
+          if (f_firmware<>'')and(f_firmware<>MyTimerThread[i].f_firmware_thread) then
           begin
+             MyTimerThread[i].f_firmware_thread:= f_firmware;
              SaveFirmwareToMySQL(MyTimerThread[i].f_idEquipment,f_firmware);
-             if f_firmware <>'' then begin
-               SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+
+             SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+
                   ' обновлена с '+ MyTimerThread[i].f_firmware_thread + ' до '+f_firmware);
                Synchronize(UpdateMemoOnForm);
-               MyTimerThread[i].f_firmware_thread:= f_firmware;
-             end;
           end;
       end;
     end;

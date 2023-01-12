@@ -289,7 +289,7 @@ begin
     //Добавляем потоки для сбора статистики модемов LTE
     Query.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, l.model_lte,'+
      ' e.useInMonitoring, e.equipment_type  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
-     'e.id=l.id_equipment order by e.name';
+     'e.id=l.id_equipment order by e.name';  //for debug: and e.name = "EX19"
     Query.Open;
     Query.First;
     while not Query.Eof do

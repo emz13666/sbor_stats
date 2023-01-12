@@ -567,6 +567,7 @@ var
    fl: boolean;
    fl_noping: boolean;
    i: byte;
+   stmp, ifIndx: AnsiString;
 const
    ifIndex = '1.3.6.1.2.1.2.2.1.1';
    ifIndexDescr = '1.3.6.1.2.1.2.2.1.2';
@@ -577,20 +578,21 @@ begin
  try
    if (not F_IndexInterfaceLTEOk) and (f_type_lte='RBSXTR') then begin
    // Сначала надо определить индекс интерфейса LTE. Для этого запросим все 5 интерфейсов и их описания:
-       snmp.Query.Clear;
-       snmp.Query.Community:='ubnt_mlink54';
-       snmp.Query.PDUType := PDUGetRequest;
        for i:=1 to 5 do begin
-         snmp.Query.MIBAdd(ifIndex +'.'+IntToStr(i),'',ASN1_NULL);
+         snmp.Query.Clear;
+         snmp.Query.Community:='ubnt_mlink54';
+         snmp.Query.PDUType := PDUGetRequest;
+         snmp.Query.MIBAdd(ifIndex +'.'+IntToStr(i),'',ASN1_INT);
          snmp.Query.MIBAdd(ifIndexDescr +'.'+IntToStr(i),'',ASN1_NULL);
-       end;
-       if snmp.SendRequest then
-       begin
-         i := 1;
-         while (i <= 5 )and(copy(snmp.Reply.MIBGet(ifIndexDescr+'.'+IntToStr(i)),1,3)<>'lte') do inc (i);
-         if i <= 5 then begin
-           F_IndexInterfaceLTEOk := true;
-           F_IndexInterfaceLTE := StrToInt(snmp.Reply.MIBGet(ifIndex+'.'+IntToStr(i)));
+         if snmp.SendRequest then
+         begin
+           ifIndx :=snmp.Reply.MIBGet(ifIndex+'.'+IntToStr(i));
+           stmp := UpperCase(copy(snmp.Reply.MIBGet(ifIndexDescr+'.'+ifIndx),1,3));
+           if (stmp='LTE') then begin
+             F_IndexInterfaceLTEOk := true;
+             F_IndexInterfaceLTE := StrToInt(ifIndx);
+             Break;
+           end;
          end;
        end;
    end;
