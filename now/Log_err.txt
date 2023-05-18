@@ -449,3 +449,14 @@
 12.01.2023 15:57:08: InitThreads begin...
 12.01.2023 21:57:41: InitThreads begin...
 12.01.2023 21:59:17: InitThreads done.
+18.05.2023 15:28:30: InitThreads begin...
+18.05.2023 15:30:01: InitThreads done.
+18.05.2023 15:31:01: Destroying My_timer_5minThread begin
+18.05.2023 15:31:01: Destroying My_timer_5minThread end
+18.05.2023 15:31:01: Destroing modem's threads begin
+18.05.2023 15:31:40: Destroing modem's threads end
+18.05.2023 15:31:40: Destroying SyncThread begin
+18.05.2023 15:31:40: Destroying SyncThread end
+18.05.2023 15:31:40: Destroying MoveToStatssOldThread begin
+18.05.2023 15:31:40: Destroying MoveToStatssOldThread end
+18.05.2023 15:31:49: Exiting...

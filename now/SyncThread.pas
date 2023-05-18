@@ -511,15 +511,14 @@ begin
  if Terminated then exit;
  try
   AQuery.Close;
-  AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, datetime, status) values('+
+  AQuery.SQL.Text := 'Insert into statss(id_modem, id_equipment, date, mac_ap, signal_level, time, datetime) values('+
             IntToStr(id_modem_statss_local)+','+
             IntToStr(id_equip_statss_local)+','+
             QuotedStr(FormatDateTime('yyyy-mm-dd',date_statss_local))+','+
             QuotedStr(mac_ap_statss_local)+','+
             QuotedStr(IntToStr(sig_lev_statss_local))+','+
             QuotedStr(FormatDateTime('hh:nn:ss',time_statss_local))+','+
-            QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss',date_statss_local+time_statss_local))+','+
-            IntToStr(f_status)+')';
+            QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss',date_statss_local+time_statss_local))+')';
   flag_ok := true;
     try
       AQuery.ExecSQL;
