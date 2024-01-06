@@ -87,6 +87,15 @@ type
     RxTrayIcon: TRxTrayIcon;
     TimerCheckRestartSbor: TTimer;
     QueryCheckRestartSbor: TADOQuery;
+    lblCountPingIp: TLabel;
+    stats_ping_ip: TClientDataSet;
+    stats_ping_ipid: TAutoIncField;
+    stats_ping_ipid_equipment: TLargeintField;
+    stats_ping_ipip: TStringField;
+    stats_ping_ipdate: TDateField;
+    stats_ping_iptime: TTimeField;
+    stats_ping_ipdatetime: TDateTimeField;
+    stats_ping_iptime_ping: TIntegerField;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -194,6 +203,10 @@ begin
   stats_ping.Open;
   stats_ping.LogChanges := false;
 
+  stats_ping_ip.FileName := ExtractFilePath(Application.ExeName)+'stats_ping_ip.cds';
+  stats_ping_ip.Open;
+  stats_ping_ip.LogChanges := false;
+
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
   Label9.Caption := IntToStr(stats_lte.RecordCount);
@@ -294,6 +307,53 @@ begin
           end
           else
             MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+          MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
+          MyTimerThread[high(MyTimerThread)].status_default := 0;
+          MyTimerThread[high(MyTimerThread)].f_new := false;
+          MyTimerThread[high(MyTimerThread)].f_is_access_point := (Modems.FieldByName('is_access_point').AsInteger=1);
+          MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+          MyTimerThread[high(MyTimerThread)].f_is_work_of_ping := true;
+          MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+          MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+          MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+          MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+          MyTimerThread[high(MyTimerThread)].Start;
+  //        sleep(8);
+      end;
+
+//2024-01-06: добавил опрос пинга switch
+      if (Modems.FieldByName('equipment_type').AsInteger in [5,6]) then begin
+          SetLength(myTimerThread,Length(MyTimerThread)+1);
+          //ip_pc-3
+          MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,AddIPaddress(Modems.FieldByName('ip_pc').AsString,-3),edtSnmpTimeout.Value);
+          Inc(CountThreads);
+          MyTimerThread[high(MyTimerThread)].f_ping_ip := true;
+          MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
+          MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
+          MyTimerThread[high(MyTimerThread)].f_eq_type := Modems.FieldByName('equipment_type').AsInteger;
+          MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
+          MyTimerThread[high(MyTimerThread)].status_default := 0;
+          MyTimerThread[high(MyTimerThread)].f_new := false;
+          MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+          MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+          MyTimerThread[high(MyTimerThread)].f_is_work_of_ping := true;
+          MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+          MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+          MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+          MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+          MyTimerThread[high(MyTimerThread)].Start;
+  //        sleep(8);
+      end;
+//2024-01-06: добавил опрос пинга Bullet_ap
+      if (Modems.FieldByName('equipment_type').AsInteger in [5,6]) then begin
+          SetLength(myTimerThread,Length(MyTimerThread)+1);
+          //ip_pc-1
+          MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,AddIPaddress(Modems.FieldByName('ip_pc').AsString,-1),edtSnmpTimeout.Value);
+          Inc(CountThreads);
+          MyTimerThread[high(MyTimerThread)].f_ping_ip := true;
+          MyTimerThread[high(MyTimerThread)].f_idEquipment := Modems.FieldByName('id').AsString;
+          MyTimerThread[high(MyTimerThread)].F_IDModem := Modems.FieldByName('id_modem').AsString;
+          MyTimerThread[high(MyTimerThread)].f_eq_type := Modems.FieldByName('equipment_type').AsInteger;
           MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
           MyTimerThread[high(MyTimerThread)].status_default := 0;
           MyTimerThread[high(MyTimerThread)].f_new := false;
@@ -401,6 +461,7 @@ begin
   stats_ap_local.Close;
   stats_lte.Close;
   stats_ping.Close;
+  stats_ping_ip.Close;
   FreeAndNil(GlobCritSect);
   except
     on E:Exception do SaveLogToFile(LogFileName,'Error in destroying threads. ('+E.ClassName+': '+E.Message+')');
@@ -426,27 +487,33 @@ begin
   if not statss_local.Active then statss_local.Open;
   if not stats_ap_local.Active then stats_ap_local.Open;
   if not stats_lte.Active then stats_lte.Open;
-  if not stats_ping.Active then stats_lte.Open;
+  if not stats_ping.Active then stats_ping.Open;
+  if not stats_ping_ip.Active then stats_ping_ip.Open;
 
   statss_local.EmptyDataSet;
   stats_ap_local.EmptyDataSet;
   stats_lte.EmptyDataSet;
   stats_ping.EmptyDataSet;
+  stats_ping_ip.EmptyDataSet;
 
   Label4.Caption := IntToStr(statss_local.RecordCount);
   Label5.Caption := IntToStr(stats_ap_local.RecordCount);
   Label9.Caption := IntToStr(stats_lte.RecordCount);
   lblCountPing.Caption := IntToStr(stats_ping.RecordCount);
+  lblCountPingIp.Caption := IntToStr(stats_ping_ip.RecordCount);
 
   statss_local.SaveToFile();
   stats_ap_local.SaveToFile();
   stats_lte.SaveToFile();
   stats_ping.SaveToFile();
+  stats_ping_ip.SaveToFile();
+
 
   statss_local.Close;
   stats_ap_local.Close;
   stats_lte.Close;
   stats_ping.Close;
+  stats_ping_ip.Close;
 
 end;
 
@@ -533,6 +600,7 @@ begin
   stats_ap_local.Close;
   stats_lte.Close;
   stats_ping.Close;
+  stats_ping_ip.Close;
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);

@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 371
   Top = 188
   Caption = #1057#1073#1086#1088' '#1089#1090#1072#1090#1080#1089#1090#1080#1082#1080' Ubiquiti'
-  ClientHeight = 435
+  ClientHeight = 452
   ClientWidth = 753
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -73,7 +73,7 @@ object Form1: TForm1
   end
   object Label8: TLabel
     Left = 11
-    Top = 407
+    Top = 417
     Width = 92
     Height = 13
     Caption = #1055#1077#1088#1080#1086#1076' '#1086#1087#1088#1086#1089#1072', '#1089':'
@@ -99,6 +99,13 @@ object Form1: TForm1
     Width = 77
     Height = 13
     Caption = #1042#1089#1077#1075#1086' '#1087#1086#1090#1086#1082#1086#1074':'
+  end
+  object lblCountPingIp: TLabel
+    Left = 121
+    Top = 398
+    Width = 6
+    Height = 13
+    Caption = '0'
   end
   object Button1: TButton
     Left = 494
@@ -206,7 +213,7 @@ object Form1: TForm1
   end
   object edtPeriodOprosa: TSpinEdit
     Left = 109
-    Top = 404
+    Top = 414
     Width = 49
     Height = 22
     MaxValue = 0
@@ -474,5 +481,32 @@ object Form1: TForm1
     Parameters = <>
     Left = 168
     Top = 192
+  end
+  object stats_ping_ip: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 40
+    Top = 72
+    object stats_ping_ipid: TAutoIncField
+      FieldName = 'id'
+    end
+    object stats_ping_ipid_equipment: TLargeintField
+      FieldName = 'id_equipment'
+    end
+    object stats_ping_ipip: TStringField
+      FieldName = 'ip'
+    end
+    object stats_ping_ipdate: TDateField
+      FieldName = 'date'
+    end
+    object stats_ping_iptime: TTimeField
+      FieldName = 'time'
+    end
+    object stats_ping_ipdatetime: TDateTimeField
+      FieldName = 'datetime'
+    end
+    object stats_ping_iptime_ping: TIntegerField
+      FieldName = 'time_ping'
+    end
   end
 end

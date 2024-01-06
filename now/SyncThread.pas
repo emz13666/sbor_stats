@@ -8,7 +8,7 @@ type
   private
     { Private declarations }
     rec_count_local_statss,rec_count_local_statss_ap,
-    rec_count_local_stats_lte, rec_count_local_stats_ping : longint;
+    rec_count_local_stats_lte, rec_count_local_stats_ping, rec_count_local_stats_ping_ip : longint;
     id_statss_local, id_modem_statss_local,
     id_statss_local_ap, id_modem_statss_local_ap,
     id_equip_statss_local, id_equip_statss_local_ap,
@@ -17,7 +17,7 @@ type
     loadavg, memfree: AnsiString;
     flag_10minut: boolean;
     rx_octets_eth0, tx_octets_eth0: AnsiString;
-    mac_ap_statss_local: AnsiString;
+    mac_ap_statss_local, ip_addr: AnsiString;
     date_statss_local, time_statss_local: TDateTime;
     date_statss_local_ap, time_statss_local_ap: TDateTime;
     datetime_lte, date_lte, time_lte: TDateTime;
@@ -31,22 +31,27 @@ type
     Procedure DoWork_ap;
     Procedure DoWork_lte;
     Procedure DoWork_ping;
+    procedure DoWork_ping_ip;
     procedure GetCountLocalStatss;
     procedure GetCountLocalStatss_ap;
     procedure GetCountLocalStatss_lte;
     procedure GetCountLocalStatss_ping;
+    procedure GetCountLocalStatss_ping_ip;
     procedure GetStatss_local;
     procedure GetStats_ap_local;
     procedure GetStats_lte_local;
     procedure GetStats_ping_local;
+    procedure GetStats_ping_ip_local;
     procedure PutToMySQL;
     procedure PutToMySQL_AP;
     procedure PutToMySQL_LTE;
     procedure PutToMySQL_ping;
+    Procedure PutToMySQL_ping_ip;
     procedure DeleteFromStatsLocal;
     procedure DeleteFromStatsLocal_ap;
     procedure DeleteFromStatsLocal_lte;
     procedure DeleteFromStatsLocal_ping;
+    procedure DeleteFromStatsLocal_ping_ip;
     procedure UpdateMemoOnForm;
     procedure Execute; override;
   public
@@ -54,7 +59,7 @@ type
     destructor Destroy; override;
   end;
 
-var flag_ok, flag_ok_ap, flag_ok_lte, flag_ok_ping: boolean;
+var flag_ok, flag_ok_ap, flag_ok_lte, flag_ok_ping, flag_ok_ping_ip: boolean;
 
 
 implementation
@@ -168,6 +173,26 @@ begin
  end;
 end;
 
+procedure TMySyncThread.DeleteFromStatsLocal_ping_ip;
+begin
+ if Terminated then exit;
+ GlobCritSect.Enter;
+ try
+    Form1.stats_ping_ip.First;
+    if Form1.stats_ping_ip.Locate('id',id_statss_local,[]) then begin
+      Form1.stats_ping_ip.Delete;
+    end;
+    GlobCritSect.Leave;
+ except
+  on E:Exception do
+  begin
+    SaveLogToFile(LogFileName,'Error in DeleteFromStatsLocal_ping_ip. id:'+IntTostr(id_statss_local)+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
+    GlobCritSect.Leave;
+  end;
+ end;
+end;
+
 destructor TMySyncThread.Destroy;
 begin
    AQuery.Close;AQuery.Connection := nil;
@@ -246,6 +271,23 @@ begin
     end;
 end;
 
+procedure TMySyncThread.DoWork_ping_ip;
+var t1: cardinal;
+begin
+  if Terminated then Exit;
+  t1 := GetTickCount;
+  GetCountLocalStatss_ping_ip;
+  while (rec_count_local_stats_ping_ip>0)and(GetTickCount-t1 < 5000) do
+    begin
+      if Terminated then Break;
+       GetStats_ping_ip_local;
+       // закомментировано для отладки
+       PutToMySQL_ping_ip;
+       if flag_ok_ping_ip then DeleteFromStatsLocal_ping_ip;
+       GetCountLocalStatss_ping_ip;
+    end;
+end;
+
 procedure TMySyncThread.Execute;
 var begin_tick, begin_tick10min: cardinal;
 begin
@@ -259,7 +301,8 @@ begin
        DoWork;
        DoWork_ap;
        DoWork_lte;
-       DoWork_ping; //флаг  flag_10minut := false нужно только вот на этом шаге, иначе очистится только первая таблица
+       DoWork_ping;
+       DoWork_ping_ip; //флаг  flag_10minut := false нужно только вот на этом шаге, иначе очистится только первая таблица
        AConn.Close;
        begin_tick := GetTickCount;
         while GetTickCount - begin_tick < 10000 do
@@ -375,8 +418,39 @@ begin
       form1.stats_ping.SaveToFile();
       form1.stats_ping.Close;
       form1.stats_ping.Open;
-      flag_10minut := false;
+      //flag_10minut := false;
         if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss_ping=0, EmptyDataSet и SaveToFile');
+        if flag_debug then Synchronize(UpdateMemoOnForm);
+    end;
+    (* *)
+    GlobCritSect.Leave;
+  except
+    on E:Exception do
+    begin
+      SaveLogToFile(LogFileName,'Ошибка при выполнении GetCountLocalStatss_ping в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
+      GlobCritSect.Leave;
+    end;
+  end;
+end;
+
+procedure TMySyncThread.GetCountLocalStatss_ping_ip;
+begin
+  if Terminated then Exit;
+  GlobCritSect.Enter;
+  try
+    if not Form1.stats_ping_ip.Active then Form1.stats_ping_ip.Open;
+    Form1.stats_ping_ip.Last;
+    rec_count_local_stats_ping_ip := Form1.stats_ping_ip.RecordCount;
+    Form1.stats_ping_ip.First;
+   // Чтобы не было утечки памяти - 1 раз в 10 минут если таблица пустая то очищаем её на диске и в памяти:
+    if flag_10minut and (rec_count_local_stats_ping_ip=0) then begin
+      form1.stats_ping_ip.EmptyDataSet;
+      form1.stats_ping_ip.SaveToFile();
+      form1.stats_ping_ip.Close;
+      form1.stats_ping_ip.Open;
+      flag_10minut := false;
+        if flag_debug then SaveLogToFile(LogFileName,'rec_count_local_statss_ping_ip=0, EmptyDataSet и SaveToFile');
         if flag_debug then Synchronize(UpdateMemoOnForm);
     end;
     (* *)
@@ -480,6 +554,33 @@ begin
   end;
 end;
 
+procedure TMySyncThread.GetStats_ping_ip_local;
+begin
+  if Terminated then Exit;
+  GlobCritSect.Enter;
+  with form1 do
+  try
+    if not stats_ping_ip.Active then stats_ping_ip.Open;
+    stats_ping_ip.Last;
+    id_statss_local := stats_ping_ipid.AsInteger;
+    id_equipment_ping := stats_ping_ipid_equipment.AsInteger;
+    time_ping := stats_ping_iptime_ping.AsInteger;
+    ip_addr := stats_ping_ipip.AsString;
+
+    date_ping := stats_ping_ipDate.AsDateTime;
+    timeOfPing := stats_ping_ipTime.AsDateTime;
+    datetime_ping := stats_ping_ipDatetime.AsDateTime;
+    GlobCritSect.Leave;
+  except
+   on E:Exception do
+   begin
+    SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_ping_ip в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    Synchronize(UpdateMemoOnForm);
+    GlobCritSect.Leave;
+   end;
+  end;
+end;
+
 procedure TMySyncThread.GetStats_ping_local;
 begin
   if Terminated then Exit;
@@ -499,7 +600,7 @@ begin
   except
    on E:Exception do
    begin
-    SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_lte в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+    SaveLogToFile(LogFileName, 'Ошибка при чтении записи из локальной БД_ping в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
     Synchronize(UpdateMemoOnForm);
     GlobCritSect.Leave;
    end;
@@ -676,6 +777,38 @@ begin
     except
      on E:Exception do
      begin
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
+      GlobCritSect.Leave;
+     end;
+    end;
+
+ finally
+   AQuery.Close;
+   AConn.Close;
+ end;
+end;
+
+procedure TMySyncThread.PutToMySQL_ping_ip;
+begin
+ if Terminated then exit;
+ try
+  AQuery.Close;
+  AQuery.SQL.Text := 'Insert into stats_ping_ip(id_equipment, ip, date, time, datetime, time_ping) values('+
+            IntToStr(id_equipment_ping)+','+
+            QuotedStr(ip_addr)+','+
+            QuotedStr(FormatDateTime('yyyy-mm-dd',date_ping))+','+
+            QuotedStr(FormatDateTime('hh:nn:ss',timeOfPing))+','+
+            QuotedStr(FormatDateTime('yyy-mm-dd hh:nn:ss',datetime_ping))+','+
+            IntToStr(time_ping) + ')';
+    flag_ok_ping_ip := true;
+    try
+      AQuery.ExecSQL;
+    except
+     on E:Exception do
+     begin
+      flag_ok_ping_ip := false;
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
       Synchronize(UpdateMemoOnForm);

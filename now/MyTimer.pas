@@ -36,10 +36,12 @@ type
     procedure WriteToForm;
     procedure WriteToForm_lte;
     procedure WriteToForm_ping;
+    procedure WriteToForm_ping_ip;
     procedure WriteToForm_AP;
     procedure SaveToLocalDB;
     procedure SaveToLocalDB_LTE;
     procedure SaveToLocalDB_ping;
+    procedure SaveToLocalDB_ping_ip;
     procedure SaveToLocalDB_AP;
     procedure UpdateMemoOnForm;
     procedure Execute; override;
@@ -64,6 +66,7 @@ type
     f_type_lte: AnsiString;
     F_mac_wds_peer: string;
     f_firmware_thread: string;
+    f_ping_ip: boolean;
     constructor Create(CreateSuspended: Boolean; AFHost: AnsiString; AFTimeoutSnmp: integer);
     destructor Destroy; override;
   end;
@@ -146,6 +149,7 @@ begin
   snmp := tsnmpsend.Create;
   snmp.TargetHost := f_host;
   snmp.Timeout := AFTimeoutSnmp*1000;
+  f_ping_ip := false;
 end;
 
 destructor TMyTimerThread.Destroy;
@@ -340,8 +344,14 @@ begin
      end;
    end;
 
-   SaveToLocalDB_ping;
-   Synchronize(WriteToForm_ping);
+   if f_ping_ip then
+   begin
+     SaveToLocalDB_ping_ip;
+     Synchronize(WriteToForm_ping_ip);
+   end else begin
+     SaveToLocalDB_ping;
+     Synchronize(WriteToForm_ping);
+   end;
 
  except
    on E : Exception do
@@ -689,10 +699,8 @@ begin
   f_lasttickcount_tx := 0;
   f_lasttickcount_rx := 0;
   repeat
-     if f_is_access_point and (f_eq_type<>3) then  DoWork_AP
+     if f_is_ap_repeater  then DoWork_AP_Repeater
      else
-       if f_is_ap_repeater  then DoWork_AP_Repeater
-       else
          if f_is_access_point then DoWork_AP
          else
            if f_new then  DoWork_new
@@ -869,6 +877,33 @@ begin
      end;
 end;
 
+procedure TMyTimerThread.SaveToLocalDB_ping_ip;
+begin
+  if Terminated then Exit;
+  GlobCritSect.Enter;
+  with form1 do
+     try
+         if not stats_ping_ip.Active then stats_ping_ip.Active := true;
+         stats_ping_ip.Last;
+         stats_ping_ip.Insert;
+         stats_ping_ipid_equipment.AsInteger := StrToInt(f_idEquipment);
+         stats_ping_ipip.AsString := f_host;
+         stats_ping_ipDate.AsString := F_Date;
+         stats_ping_ipTime.AsString := F_Time;
+         stats_ping_ipdatetime.AsDateTime := F_Datetime;
+         stats_ping_iptime_ping.AsInteger := F_time_ping;
+         stats_ping_ip.Post;
+         GlobCritSect.Leave;
+     except
+      on E:Exception do
+      begin
+        SaveLogToFile(LogFileName,'Error in SaveToLocalDB_ping_ip. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        Synchronize(UpdateMemoOnForm);
+        GlobCritSect.Leave;
+      end;
+     end;
+end;
+
 procedure TMyTimerThread.UpdateMemoOnForm;
 begin
   if Terminated then Exit;
@@ -938,6 +973,23 @@ begin
   except
    on E:Exception do begin
     SaveLogToFile(LogFileName,'Error in WriteToForm_ping. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+    UpdateMemoOnForm;
+    //GlobCritSect.Leave;
+   end;
+  end;
+end;
+
+procedure TMyTimerThread.WriteToForm_ping_ip;
+begin
+  if Terminated then Exit;
+//  GlobCritSect.Enter;
+  try
+   if not Form1.RxTrayIcon.Active and FormCreated  then
+    if Form1.stats_ping_ip.Active then Form1.lblCountPingIp.Caption:=IntToStr(Form1.stats_ping_ip.RecordCount);
+  //  GlobCritSect.Leave;
+  except
+   on E:Exception do begin
+    SaveLogToFile(LogFileName,'Error in WriteToForm_ping_ip. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
     UpdateMemoOnForm;
     //GlobCritSect.Leave;
    end;

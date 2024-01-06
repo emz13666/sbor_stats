@@ -460,3 +460,43 @@
 18.05.2023 15:31:40: Destroying MoveToStatssOldThread begin
 18.05.2023 15:31:40: Destroying MoveToStatssOldThread end
 18.05.2023 15:31:49: Exiting...
+06.01.2024 11:21:29: InitThreads begin...
+06.01.2024 11:25:45: InitThreads begin...
+06.01.2024 11:27:55: InitThreads done.
+06.01.2024 11:28:51: Destroying My_timer_5minThread begin
+06.01.2024 11:28:51: Destroying My_timer_5minThread end
+06.01.2024 11:28:51: Destroing modem's threads begin
+06.01.2024 11:29:33: Destroing modem's threads end
+06.01.2024 11:29:33: Destroying SyncThread begin
+06.01.2024 11:29:33: Destroying SyncThread end
+06.01.2024 11:29:33: Destroying MoveToStatssOldThread begin
+06.01.2024 11:29:33: Destroying MoveToStatssOldThread end
+06.01.2024 11:29:43: Exiting...
+06.01.2024 11:42:29: InitThreads begin...
+06.01.2024 11:42:40: InitThreads done.
+06.01.2024 11:45:06: InitThreads begin...
+06.01.2024 11:45:15: InitThreads done.
+06.01.2024 11:46:50: Destroying My_timer_5minThread begin
+06.01.2024 11:46:50: Destroying My_timer_5minThread end
+06.01.2024 11:46:50: Destroing modem's threads begin
+06.01.2024 11:46:50: Destroing modem's threads end
+06.01.2024 11:46:50: Destroying SyncThread begin
+06.01.2024 11:46:50: Destroying SyncThread end
+06.01.2024 11:46:50: Destroying MoveToStatssOldThread begin
+06.01.2024 11:46:50: Destroying MoveToStatssOldThread end
+06.01.2024 11:47:23: Exiting...
+06.01.2024 11:52:05: InitThreads begin...
+06.01.2024 11:52:05: InitThreads done.
+06.01.2024 12:02:33: InitThreads begin...
+06.01.2024 12:02:33: InitThreads done.
+06.01.2024 12:10:38: InitThreads begin...
+06.01.2024 12:10:38: InitThreads done.
+06.01.2024 12:12:06: Destroying My_timer_5minThread begin
+06.01.2024 12:12:06: Destroying My_timer_5minThread end
+06.01.2024 12:12:06: Destroing modem's threads begin
+06.01.2024 12:12:06: Destroing modem's threads end
+06.01.2024 12:12:06: Destroying SyncThread begin
+06.01.2024 12:12:06: Destroying SyncThread end
+06.01.2024 12:12:06: Destroying MoveToStatssOldThread begin
+06.01.2024 12:12:06: Destroying MoveToStatssOldThread end
+06.01.2024 12:12:11: Exiting...
