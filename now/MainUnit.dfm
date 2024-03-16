@@ -509,4 +509,17 @@ object Form1: TForm1
       FieldName = 'time_ping'
     end
   end
+  object QueryTmp: TADOQuery
+    Connection = ADOConnection1
+    Parameters = <>
+    Left = 120
+    Top = 80
+  end
+  object TimerAfterFormCreate: TTimer
+    Enabled = False
+    Interval = 2000
+    OnTimer = TimerAfterFormCreateTimer
+    Left = 528
+    Top = 136
+  end
 end

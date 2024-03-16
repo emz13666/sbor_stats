@@ -96,6 +96,8 @@ type
     stats_ping_iptime: TTimeField;
     stats_ping_ipdatetime: TDateTimeField;
     stats_ping_iptime_ping: TIntegerField;
+    QueryTmp: TADOQuery;
+    TimerAfterFormCreate: TTimer;
     procedure RxTrayIcon1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Hide_appl(Sender: TObject);
@@ -115,9 +117,11 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FormShow(Sender: TObject);
     procedure TimerCheckRestartSborTimer(Sender: TObject);
+    procedure TimerAfterFormCreateTimer(Sender: TObject);
   private
     { Private declarations }
     Procedure InitThreads;
+    Procedure StartThreads;
     Procedure DestroyThreads;
   public
     { Public declarations }
@@ -147,6 +151,22 @@ implementation
 
 {$R *.dfm}
 
+function LTE_on_2_systems(a_id_lte: string): boolean;
+begin
+  if a_id_lte='' then
+    Result := false
+  else
+    with form1.QueryTmp do
+    begin
+      Close;
+      Sql.Text := 'SELECT count(*) FROM equipment WHERE id__lte=' + a_id_lte +' or id=(select id_equipment from lte where id_lte='+ a_id_lte + ')';
+      Open;
+      Result := Fields[0].AsInteger > 1;
+      Close;
+    end;
+end;
+
+
 procedure TForm1.RxTrayIcon1DblClick(Sender: TObject);
 begin
   RxTrayIcon.Active := false;
@@ -154,6 +174,21 @@ begin
   ShowWindow(Handle,SW_SHOW);
   Application.Restore;
   Application.BringToFront;
+end;
+
+procedure TForm1.StartThreads;
+var i: word;
+begin
+  VarMoveToStatssOld.Start;
+  for i:=0  to high(MyTimerThread) do MyTimerThread[i].Start;
+  MySyncThread.Start;
+  My_timer_5min.Start;
+end;
+
+procedure TForm1.TimerAfterFormCreateTimer(Sender: TObject);
+begin
+  TimerAfterFormCreate.Enabled := false;
+  StartThreads;
 end;
 
 procedure TForm1.TimerCheckRestartSborTimer(Sender: TObject);
@@ -214,7 +249,9 @@ begin
   Application.OnMinimize := Hide_appl;
 
   fl_threadsDestroyed := true;
+
   InitThreads;
+
 
   chkPredvPing.Enabled := false;
   chCollectStatsBullet.Enabled := false;
@@ -223,6 +260,7 @@ begin
   edtPeriodOprosa.Enabled := false;
   FormCreated := true;
   TimerCheckRestartSbor.Enabled := true;
+  TimerAfterFormCreate.Enabled := true;
 end;
 
 procedure TForm1.Hide_appl(Sender: TObject);
@@ -254,7 +292,7 @@ begin
 
        VarMoveToStatssOld := TMoveToStatss_oldThreadThread.Create(true);
        VarMoveToStatssOld.FreeOnTerminate := free_on_term;
-       VarMoveToStatssOld.Start;
+       //VarMoveToStatssOld.Start;
        Inc(CountThreads);
 
 
@@ -288,7 +326,7 @@ begin
       MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
       MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
       MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
-      MyTimerThread[high(MyTimerThread)].Start;
+ //     MyTimerThread[high(MyTimerThread)].Start;
 //      sleep(8);
 
 //2021-08-16: создаём потоки для сбора ping по РТХ-ам и КОБУС-ам:
@@ -317,7 +355,7 @@ begin
           MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
           MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
           MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
-          MyTimerThread[high(MyTimerThread)].Start;
+          //MyTimerThread[high(MyTimerThread)].Start;
   //        sleep(8);
       end;
 
@@ -341,7 +379,7 @@ begin
           MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
           MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
           MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
-          MyTimerThread[high(MyTimerThread)].Start;
+          //MyTimerThread[high(MyTimerThread)].Start;
   //        sleep(8);
       end;
 //2024-01-06: добавил опрос пинга Bullet_ap
@@ -364,7 +402,7 @@ begin
           MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
           MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
           MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
-          MyTimerThread[high(MyTimerThread)].Start;
+          //MyTimerThread[high(MyTimerThread)].Start;
   //        sleep(8);
       end;
 
@@ -399,7 +437,7 @@ begin
       MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
       MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
       MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
-      MyTimerThread[high(MyTimerThread)].Start;
+      //MyTimerThread[high(MyTimerThread)].Start;
       //sleep(8);
       //Application.ProcessMessages;
       //Sleep(random(80));
@@ -407,6 +445,105 @@ begin
       Query.Next;
     end;
     Query.Close;
+
+    //15-03-2024
+    //Добавляем потоки для сбора статистики модемов LTE системы мониторинга водителей
+    Query.SQL.Text := 'SELECT e.id, e.name, l.ip_lte, l.model_lte,'+
+     ' e.useInMonitoring, e.equipment_type, l.id_lte  FROM equipment e left join lte l on e.id__lte=l.id_lte WHERE e.useInMonitoring=1 and '+
+     'e.equipment_type=8 and e.id__lte>0 order by e.name';  //for debug: and e.name = "EX19"
+    Query.Open;
+    while not Query.Eof do
+    begin
+      if  not LTE_on_2_systems(Query.FieldByName('id_lte').AsString) then begin
+        SetLength(myTimerThread,Length(MyTimerThread)+1);
+        MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
+        Inc(CountThreads);
+        MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id').AsString;
+        MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
+        MyTimerThread[high(MyTimerThread)].f_is_lte := true;
+        MyTimerThread[high(MyTimerThread)].f_type_lte := Query.FieldByName('model_lte').AsString;
+        MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+        MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
+        MyTimerThread[high(MyTimerThread)].f_new := false;
+        MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+        MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+        MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+        MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+        MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+        MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+        MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+        //MyTimerThread[high(MyTimerThread)].Start;
+      end;
+      Query.Next;
+    end;
+    // Добавляем потоки для сбора статистики по доступности портов 3569, 81, 82 (оборудование за NAT: пк и две камеры)
+    Query.First;
+    while not Query.Eof do
+    begin
+          SetLength(myTimerThread,Length(MyTimerThread)+1);
+        MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
+        Inc(CountThreads);
+        MyTimerThread[high(MyTimerThread)].f_is_tcp_ping := true;
+        MyTimerThread[high(MyTimerThread)].f_port := '3569';
+        MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id').AsString;
+        MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
+        MyTimerThread[high(MyTimerThread)].f_is_lte := false;
+        MyTimerThread[high(MyTimerThread)].f_type_lte := Query.FieldByName('model_lte').AsString;
+        MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+        MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
+        MyTimerThread[high(MyTimerThread)].f_new := false;
+        MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+        MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+        MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+        MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+        MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+        MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+        MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+        //MyTimerThread[high(MyTimerThread)].Start;
+          SetLength(myTimerThread,Length(MyTimerThread)+1);
+        MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
+        Inc(CountThreads);
+        MyTimerThread[high(MyTimerThread)].f_is_tcp_ping := true;
+        MyTimerThread[high(MyTimerThread)].f_port := '81';
+        MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id').AsString;
+        MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
+        MyTimerThread[high(MyTimerThread)].f_is_lte := false;
+        MyTimerThread[high(MyTimerThread)].f_type_lte := Query.FieldByName('model_lte').AsString;
+        MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+        MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
+        MyTimerThread[high(MyTimerThread)].f_new := false;
+        MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+        MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+        MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+        MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+        MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+        MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+        MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+        //MyTimerThread[high(MyTimerThread)].Start;
+          SetLength(myTimerThread,Length(MyTimerThread)+1);
+        MyTimerThread[high(MyTimerThread)] := TMyTimerThread.Create(true,Query.FieldByName('ip_lte').AsString,edtSnmpTimeout.Value);
+        Inc(CountThreads);
+        MyTimerThread[high(MyTimerThread)].f_is_tcp_ping := true;
+        MyTimerThread[high(MyTimerThread)].f_port := '82';
+        MyTimerThread[high(MyTimerThread)].f_idEquipment := Query.FieldByName('id').AsString;
+        MyTimerThread[high(MyTimerThread)].f_eq_type := Query.FieldByName('equipment_type').AsInteger;
+        MyTimerThread[high(MyTimerThread)].f_is_lte := false;
+        MyTimerThread[high(MyTimerThread)].f_type_lte := Query.FieldByName('model_lte').AsString;
+        MyTimerThread[high(MyTimerThread)].f_is_alias := false;
+        MyTimerThread[high(MyTimerThread)].f_nameModem := Query.FieldByName('name').AsString;
+        MyTimerThread[high(MyTimerThread)].f_new := false;
+        MyTimerThread[high(MyTimerThread)].f_is_access_point := false;
+        MyTimerThread[high(MyTimerThread)].f_is_ap_repeater := false;
+        MyTimerThread[high(MyTimerThread)].PredvPing := chkPredvPing.Checked;
+        MyTimerThread[high(MyTimerThread)].f_is_collect_net_stat := false;
+        MyTimerThread[high(MyTimerThread)].PeriodOprosa := edtPeriodOprosa.Value;
+        MyTimerThread[high(MyTimerThread)].PeriodUnreachble := edtPingUnreachble.Value;
+        MyTimerThread[high(MyTimerThread)].FreeOnTerminate := free_on_term;
+        //MyTimerThread[high(MyTimerThread)].Start;
+      Query.Next;
+    end;
+    Query.Close;
+
 
   except
     on E:Exception do
@@ -420,12 +557,12 @@ begin
   MySyncThread := TMySyncThread.Create(true);
   Inc(CountThreads);
   MySyncThread.FreeOnTerminate := free_on_term;
-  MySyncThread.Start;
+  //MySyncThread.Start;
 
   My_timer_5min := TMyTimer5minThread.Create(true);
   Inc(CountThreads);
   My_timer_5min.FreeOnTerminate := free_on_term;
-  My_timer_5min.Start;
+  //My_timer_5min.Start;
   //MyThreadTimerWifiOff := TThreadTimerWifiOff.Create(true);
   //MyThreadTimerWifiOff.FreeOnTerminate := free_on_term;
   //LogError := Memo1.Lines;
@@ -444,7 +581,7 @@ begin
   GlobCritSect.Leave;
   fl_threadsDestroyed := False;
   lblCountThreads.Caption := 'Всего потоков: '+IntToStr(CountThreads);
-  ADOConnection1.Close;
+  //ADOConnection1.Close;
 end;
 
 procedure TForm1.FormActivate(Sender: TObject);
@@ -570,6 +707,8 @@ begin
   Cursor := crHourGlass;
 
   InitThreads;
+  StartThreads;
+
   Application.ProcessMessages;
   btnStopSbor.Enabled := true;
   Cursor := crDefault;

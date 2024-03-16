@@ -1,7 +1,7 @@
 unit MyTimer;
 
 interface
-uses Classes, forms, snmpsend, pingsend, asn1util, windows, ADODB,MyUtils, Messages;
+uses Classes, forms, snmpsend, blcksock, pingsend, asn1util, windows, ADODB,MyUtils, Messages;
 
 type
   TMyTimerThread = class(TThread)
@@ -29,9 +29,9 @@ type
     Procedure DoWork;
     Procedure DoWork_new;//for new mibs
     Procedure DoWork_AP;
-
     Procedure DoWork_LTE;
     Procedure DoWork_ping;
+    Procedure DoWork_ping_tcp;
     Procedure DoWork_AP_Repeater;
     procedure WriteToForm;
     procedure WriteToForm_lte;
@@ -44,11 +44,13 @@ type
     procedure SaveToLocalDB_ping_ip;
     procedure SaveToLocalDB_AP;
     procedure UpdateMemoOnForm;
+    procedure update_on_line;
     procedure Execute; override;
   public
     PredvPing: boolean;
     PeriodOprosa: integer;
     PeriodUnreachble: integer;
+    f_port: string;
     f_new: boolean;
     f_nameModem: string;
     f_host: AnsiString;
@@ -60,6 +62,7 @@ type
     status_default: byte;
     f_is_access_point: boolean;
     f_is_work_of_ping: boolean;
+    f_is_tcp_ping: boolean;
     f_is_lte: boolean;
     f_is_ap_repeater: boolean;
     f_is_collect_net_stat: boolean;
@@ -150,6 +153,7 @@ begin
   snmp.TargetHost := f_host;
   snmp.Timeout := AFTimeoutSnmp*1000;
   f_ping_ip := false;
+  f_is_tcp_ping := false;
 end;
 
 destructor TMyTimerThread.Destroy;
@@ -358,6 +362,54 @@ begin
    begin
       GlobCritSect.Enter;
       SaveLogToFile(LogFileName,'Error in DoWork_new. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
+      GlobCritSect.Leave;
+   end;
+ end;
+end;
+
+procedure TMyTimerThread.DoWork_ping_tcp;
+var
+  FSocket: TTCPBlockSocket;//объект сокета
+begin
+  if Terminated then Exit;
+ try
+
+   F_Date := FormatDateTime('dd.mm.yyyy',now);
+   F_Time := FormatDateTime('hh:nn:ss',now);
+   F_Datetime := now;
+
+   F_time_ping :=GetTickCount;
+   FSocket:=TTCPBlockSocket.Create;
+   FSocket.ConnectionTimeout:=snmp.Timeout;
+   FSocket.Connect(f_host, f_port);//пробуем соединиться
+   FSocket.GetSins;
+   if FSocket.LastError=0 then //ошибок нет - соединились успешно
+     F_time_ping := GetTickCount - F_time_ping
+   else
+     F_time_ping := -100; //порт недоступен
+   FSocket.CloseSocket;//закрывем сокет
+   FSocket.Free;
+
+   if F_time_ping = -1 then F_time_ping := -100;
+   if F_time_ping <>-100 then begin
+       IfOfflineMore5min := false;
+       f_offline_5min := GetTickCount;
+       f_online := '1';
+   end
+   else f_online := '0';
+
+   {тут обновляем поле on_line таблицы equipment если порт=3569}
+   if f_port='3569' then update_on_line;
+   
+   SaveToLocalDB_ping_ip;
+   Synchronize(WriteToForm_ping_ip);
+
+ except
+   on E : Exception do
+   begin
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Error in DoWork_ping_tcp. Modem:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
       Synchronize(UpdateMemoOnForm);
       GlobCritSect.Leave;
    end;
@@ -699,6 +751,8 @@ begin
   f_lasttickcount_tx := 0;
   f_lasttickcount_rx := 0;
   repeat
+    if f_is_tcp_ping then DoWork_ping_tcp
+    else
      if f_is_ap_repeater  then DoWork_AP_Repeater
      else
          if f_is_access_point then DoWork_AP
@@ -887,7 +941,10 @@ begin
          stats_ping_ip.Last;
          stats_ping_ip.Insert;
          stats_ping_ipid_equipment.AsInteger := StrToInt(f_idEquipment);
-         stats_ping_ipip.AsString := f_host;
+         if f_is_tcp_ping then
+           stats_ping_ipip.AsString := f_host+':'+f_port
+         else
+           stats_ping_ipip.AsString := f_host;
          stats_ping_ipDate.AsString := F_Date;
          stats_ping_ipTime.AsString := F_Time;
          stats_ping_ipdatetime.AsDateTime := F_Datetime;
@@ -909,6 +966,27 @@ begin
   if Terminated then Exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
+end;
+
+procedure TMyTimerThread.update_on_line;
+begin
+  if Terminated then Exit;
+  GlobCritSect.Enter;
+  with form1 do
+     try
+         QueryTmp.Close;
+         QueryTmp.SQL.Text := 'Update equipment set on_line='+f_online + ' where id='+ f_idEquipment;
+         QueryTmp.ExecSQL;
+         QueryTmp.Close;
+         GlobCritSect.Leave;
+     except
+      on E:Exception do
+      begin
+        SaveLogToFile(LogFileName,'Error in update_on_line. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
+        Synchronize(UpdateMemoOnForm);
+        GlobCritSect.Leave;
+      end;
+     end;
 end;
 
 procedure TMyTimerThread.WriteToForm;
