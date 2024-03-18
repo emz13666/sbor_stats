@@ -44,7 +44,6 @@ type
     procedure SaveToLocalDB_ping_ip;
     procedure SaveToLocalDB_AP;
     procedure UpdateMemoOnForm;
-    procedure update_on_line;
     procedure Execute; override;
   public
     PredvPing: boolean;
@@ -399,9 +398,6 @@ begin
    end
    else f_online := '0';
 
-   {тут обновляем поле on_line таблицы equipment если порт=3569}
-   if f_port='3569' then update_on_line;
-   
    SaveToLocalDB_ping_ip;
    Synchronize(WriteToForm_ping_ip);
 
@@ -966,27 +962,6 @@ begin
   if Terminated then Exit;
   Form1.Memo1.Lines.LoadFromFile(LogFileName);
   Form1.Memo1.Perform(EM_LINESCROLL,0,Form1.Memo1.Lines.Count-1);
-end;
-
-procedure TMyTimerThread.update_on_line;
-begin
-  if Terminated then Exit;
-  GlobCritSect.Enter;
-  with form1 do
-     try
-         QueryTmp.Close;
-         QueryTmp.SQL.Text := 'Update equipment set on_line='+f_online + ' where id='+ f_idEquipment;
-         QueryTmp.ExecSQL;
-         QueryTmp.Close;
-         GlobCritSect.Leave;
-     except
-      on E:Exception do
-      begin
-        SaveLogToFile(LogFileName,'Error in update_on_line. Equipment:'+f_nameModem+' ('+E.ClassName+': '+E.Message+')');
-        Synchronize(UpdateMemoOnForm);
-        GlobCritSect.Leave;
-      end;
-     end;
 end;
 
 procedure TMyTimerThread.WriteToForm;

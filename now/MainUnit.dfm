@@ -73,7 +73,7 @@ object Form1: TForm1
   end
   object Label8: TLabel
     Left = 11
-    Top = 417
+    Top = 423
     Width = 92
     Height = 13
     Caption = #1055#1077#1088#1080#1086#1076' '#1086#1087#1088#1086#1089#1072', '#1089':'
@@ -213,7 +213,7 @@ object Form1: TForm1
   end
   object edtPeriodOprosa: TSpinEdit
     Left = 109
-    Top = 414
+    Top = 420
     Width = 49
     Height = 22
     MaxValue = 0

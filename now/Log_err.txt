@@ -513,3 +513,175 @@
 15.03.2024 22:10:45: InitThreads begin...
 15.03.2024 22:10:45: InitThreads done.
 15.03.2024 22:11:23: Destroying My_timer_5minThread begin
+16.03.2024 10:43:40: InitThreads begin...
+16.03.2024 10:43:40: InitThreads done.
+16.03.2024 10:44:10: Destroying My_timer_5minThread begin
+16.03.2024 14:48:10: InitThreads begin...
+16.03.2024 14:48:10: InitThreads done.
+16.03.2024 14:48:47: Destroying My_timer_5minThread begin
+16.03.2024 14:48:47: Destroying My_timer_5minThread end
+16.03.2024 14:48:47: Destroing modem's threads begin
+16.03.2024 14:48:47: Destroing modem's threads end
+16.03.2024 14:48:47: Destroying SyncThread begin
+16.03.2024 14:48:47: Destroying SyncThread end
+16.03.2024 14:48:47: Destroying MoveToStatssOldThread begin
+16.03.2024 14:48:47: Destroying MoveToStatssOldThread end
+16.03.2024 14:48:58: Exiting...
+16.03.2024 15:00:07: InitThreads begin...
+16.03.2024 15:04:15: InitThreads begin...
+16.03.2024 15:08:27: InitThreads begin...
+16.03.2024 15:15:52: InitThreads done.
+16.03.2024 15:18:20: Destroying My_timer_5minThread begin
+16.03.2024 15:18:20: Destroying My_timer_5minThread end
+16.03.2024 15:18:20: Destroing modem's threads begin
+16.03.2024 15:18:22: Destroing modem's threads end
+16.03.2024 15:18:22: Destroying SyncThread begin
+16.03.2024 15:18:22: Destroying SyncThread end
+16.03.2024 15:18:22: Destroying MoveToStatssOldThread begin
+16.03.2024 15:18:22: Destroying MoveToStatssOldThread end
+16.03.2024 15:18:44: Exiting...
+16.03.2024 16:36:58: InitThreads begin...
+16.03.2024 16:36:59: InitThreads done.
+16.03.2024 16:40:38: InitThreads begin...
+16.03.2024 16:40:38: InitThreads done.
+16.03.2024 16:41:01: Destroying My_timer_5minThread begin
+16.03.2024 16:45:12: InitThreads begin...
+16.03.2024 16:45:12: InitThreads done.
+16.03.2024 17:16:39: InitThreads begin...
+16.03.2024 17:18:12: InitThreads done.
+16.03.2024 17:18:59: Destroying My_timer_5minThread begin
+16.03.2024 17:18:59: Destroying My_timer_5minThread end
+16.03.2024 17:18:59: Destroing modem's threads begin
+16.03.2024 17:19:51: Destroing modem's threads end
+16.03.2024 17:19:51: Destroying SyncThread begin
+16.03.2024 17:19:51: Destroying SyncThread end
+16.03.2024 17:19:51: Destroying MoveToStatssOldThread begin
+16.03.2024 17:19:51: Destroying MoveToStatssOldThread end
+16.03.2024 17:19:51: Exiting...
+16.03.2024 17:22:10: InitThreads begin...
+16.03.2024 18:22:33: InitThreads begin...
+16.03.2024 18:29:37: InitThreads done.
+16.03.2024 18:30:37: Destroying My_timer_5minThread begin
+16.03.2024 18:30:37: Destroying My_timer_5minThread end
+16.03.2024 18:30:37: Destroing modem's threads begin
+16.03.2024 18:31:12: Destroing modem's threads end
+16.03.2024 18:31:12: Destroying SyncThread begin
+16.03.2024 18:31:12: Destroying SyncThread end
+16.03.2024 18:31:12: Destroying MoveToStatssOldThread begin
+16.03.2024 18:31:12: Destroying MoveToStatssOldThread end
+16.03.2024 18:32:31: InitThreads begin...
+16.03.2024 18:35:26: InitThreads done.
+16.03.2024 18:36:02: Destroying My_timer_5minThread begin
+16.03.2024 18:36:02: Destroying My_timer_5minThread end
+16.03.2024 18:36:02: Destroing modem's threads begin
+16.03.2024 18:36:59: Destroing modem's threads end
+16.03.2024 18:36:59: Destroying SyncThread begin
+16.03.2024 18:36:59: Destroying SyncThread end
+16.03.2024 18:36:59: Destroying MoveToStatssOldThread begin
+16.03.2024 18:36:59: Destroying MoveToStatssOldThread end
+16.03.2024 18:37:05: Exiting...
+16.03.2024 19:09:46: InitThreads begin...
+16.03.2024 19:10:25: InitThreads done.
+16.03.2024 19:11:20: InitThreads begin...
+16.03.2024 19:18:36: InitThreads begin...
+16.03.2024 19:19:37: InitThreads begin...
+16.03.2024 19:21:57: InitThreads done.
+16.03.2024 19:22:43: InitThreads begin...
+16.03.2024 19:24:51: InitThreads done.
+16.03.2024 19:48:16: InitThreads begin...
+16.03.2024 19:48:38: InitThreads done.
+16.03.2024 19:48:52: InitThreads begin...
+16.03.2024 19:49:23: InitThreads done.
+16.03.2024 19:49:44: Destroying My_timer_5minThread begin
+16.03.2024 19:49:44: Destroying My_timer_5minThread end
+16.03.2024 19:49:44: Destroing modem's threads begin
+16.03.2024 19:49:44: Destroing modem's threads end
+16.03.2024 19:49:44: Destroying SyncThread begin
+16.03.2024 19:49:44: Destroying SyncThread end
+16.03.2024 19:49:44: Destroying MoveToStatssOldThread begin
+16.03.2024 19:49:44: Destroying MoveToStatssOldThread end
+16.03.2024 19:49:48: Exiting...
+16.03.2024 19:50:13: InitThreads begin...
+16.03.2024 19:50:13: InitThreads done.
+16.03.2024 19:50:38: Destroying My_timer_5minThread begin
+16.03.2024 19:50:38: Destroying My_timer_5minThread end
+16.03.2024 19:50:38: Destroing modem's threads begin
+16.03.2024 19:50:39: Destroing modem's threads end
+16.03.2024 19:50:39: Destroying SyncThread begin
+16.03.2024 19:50:39: Destroying SyncThread end
+16.03.2024 19:50:39: Destroying MoveToStatssOldThread begin
+16.03.2024 19:50:39: Destroying MoveToStatssOldThread end
+16.03.2024 19:50:43: Exiting...
+16.03.2024 19:51:23: InitThreads begin...
+16.03.2024 19:51:28: InitThreads done.
+16.03.2024 19:52:10: InitThreads begin...
+16.03.2024 19:52:10: InitThreads done.
+16.03.2024 19:53:41: InitThreads begin...
+16.03.2024 19:53:41: InitThreads done.
+16.03.2024 19:54:14: InitThreads begin...
+16.03.2024 19:54:18: InitThreads done.
+16.03.2024 19:54:43: Destroying My_timer_5minThread begin
+16.03.2024 19:54:43: Destroying My_timer_5minThread end
+16.03.2024 19:54:43: Destroing modem's threads begin
+16.03.2024 19:54:43: Destroing modem's threads end
+16.03.2024 19:54:43: Destroying SyncThread begin
+16.03.2024 19:54:43: Destroying SyncThread end
+16.03.2024 19:54:43: Destroying MoveToStatssOldThread begin
+16.03.2024 19:54:44: Destroying MoveToStatssOldThread end
+16.03.2024 19:54:46: InitThreads begin...
+16.03.2024 19:54:52: InitThreads done.
+16.03.2024 19:55:04: Destroying My_timer_5minThread begin
+16.03.2024 19:55:04: Destroying My_timer_5minThread end
+16.03.2024 19:55:04: Destroing modem's threads begin
+16.03.2024 19:55:05: Destroing modem's threads end
+16.03.2024 19:55:05: Destroying SyncThread begin
+16.03.2024 19:55:05: Destroying SyncThread end
+16.03.2024 19:55:05: Destroying MoveToStatssOldThread begin
+16.03.2024 19:55:05: Destroying MoveToStatssOldThread end
+16.03.2024 19:55:08: Exiting...
+16.03.2024 19:55:16: InitThreads begin...
+16.03.2024 19:55:22: InitThreads done.
+16.03.2024 19:55:35: Destroying My_timer_5minThread begin
+16.03.2024 19:55:35: Destroying My_timer_5minThread end
+16.03.2024 19:55:35: Destroing modem's threads begin
+16.03.2024 19:55:35: Destroing modem's threads end
+16.03.2024 19:55:35: Destroying SyncThread begin
+16.03.2024 19:55:35: Destroying SyncThread end
+16.03.2024 19:55:35: Destroying MoveToStatssOldThread begin
+16.03.2024 19:55:35: Destroying MoveToStatssOldThread end
+16.03.2024 19:55:42: Exiting...
+16.03.2024 19:55:49: InitThreads begin...
+16.03.2024 19:55:49: InitThreads done.
+16.03.2024 19:56:00: Destroying My_timer_5minThread begin
+16.03.2024 19:56:00: Destroying My_timer_5minThread end
+16.03.2024 19:56:00: Destroing modem's threads begin
+16.03.2024 19:56:00: Destroing modem's threads end
+16.03.2024 19:56:00: Destroying SyncThread begin
+16.03.2024 19:56:00: Destroying SyncThread end
+16.03.2024 19:56:00: Destroying MoveToStatssOldThread begin
+16.03.2024 19:56:00: Destroying MoveToStatssOldThread end
+16.03.2024 19:56:04: Exiting...
+16.03.2024 19:56:12: InitThreads begin...
+16.03.2024 19:56:18: InitThreads done.
+16.03.2024 19:56:31: Destroying My_timer_5minThread begin
+16.03.2024 19:56:31: Destroying My_timer_5minThread end
+16.03.2024 19:56:31: Destroing modem's threads begin
+16.03.2024 19:56:31: Destroing modem's threads end
+16.03.2024 19:56:31: Destroying SyncThread begin
+16.03.2024 19:56:31: Destroying SyncThread end
+16.03.2024 19:56:31: Destroying MoveToStatssOldThread begin
+16.03.2024 19:56:31: Destroying MoveToStatssOldThread end
+16.03.2024 19:56:35: Exiting...
+16.03.2024 19:57:16: InitThreads begin...
+16.03.2024 19:57:16: InitThreads done.
+17.03.2024 21:56:48: InitThreads begin...
+17.03.2024 21:56:49: InitThreads done.
+17.03.2024 21:58:06: Destroying My_timer_5minThread begin
+17.03.2024 21:58:06: Destroying My_timer_5minThread end
+17.03.2024 21:58:06: Destroing modem's threads begin
+17.03.2024 21:58:12: Destroing modem's threads end
+17.03.2024 21:58:12: Destroying SyncThread begin
+17.03.2024 21:58:12: Destroying SyncThread end
+17.03.2024 21:58:12: Destroying MoveToStatssOldThread begin
+17.03.2024 21:58:12: Destroying MoveToStatssOldThread end
+17.03.2024 21:58:16: Exiting...

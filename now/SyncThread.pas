@@ -744,7 +744,7 @@ end;
 
 procedure TMySyncThread.PutToMySQL_ping;
 var
-  f_onl: integer;
+  f_onl: byte;
 begin
  if Terminated then exit;
  try
@@ -791,8 +791,10 @@ begin
 end;
 
 procedure TMySyncThread.PutToMySQL_ping_ip;
+var f_onl: byte;
 begin
  if Terminated then exit;
+
  try
   AQuery.Close;
   AQuery.SQL.Text := 'Insert into stats_ping_ip(id_equipment, ip, date, time, datetime, time_ping) values('+
@@ -815,6 +817,23 @@ begin
       GlobCritSect.Leave;
      end;
     end;
+//обновляем поле on_line таблицы equipment
+   if Pos(':3569',ip_addr)>0 then begin
+    AQuery.Close;
+    if time_ping >=0 then f_onl := 1 else f_onl := 0;
+    AQuery.SQL.Text := 'Update equipment set on_line='+Inttostr(f_onl)+' where id='+IntToStr(id_equipment_ping);
+    try
+      AQuery.ExecSQL;
+    except
+     on E:Exception do
+     begin
+      GlobCritSect.Enter;
+      SaveLogToFile(LogFileName,'Ошибка при выполнении '+AQuery.SQL.Text+' в потоке синхронизации'+' ('+E.ClassName+': '+E.Message+')');
+      Synchronize(UpdateMemoOnForm);
+      GlobCritSect.Leave;
+     end;
+    end;
+   end;
 
  finally
    AQuery.Close;
