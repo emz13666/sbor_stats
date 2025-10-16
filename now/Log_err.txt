@@ -685,3 +685,4 @@
 17.03.2024 21:58:12: Destroying MoveToStatssOldThread begin
 17.03.2024 21:58:12: Destroying MoveToStatssOldThread end
 17.03.2024 21:58:16: Exiting...
+30.08.2024 15:02:13: Невозможно инициализировать потоки - нет доступа к СУБД (EOleException: [MySQL][ODBC 8.0(a) Driver][mysqld-5.5.23]Table 'ubiquiti.modems' doesn't exist)

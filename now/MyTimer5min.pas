@@ -112,7 +112,7 @@ begin
        if snmp.SendRequest then
          begin
            s3:=snmp.Reply.MIBGet(s2);
-           Result:=GetBulletFWVersion(s3);
+           Result := GetBulletFWVersion(s3);
          end;
      except
       on E:Exception do
@@ -139,7 +139,10 @@ begin
       begin
         if MyTimerThread[i].f_is_lte then Continue;
         if MyTimerThread[i].f_is_work_of_ping then Continue;
+        if MyTimerThread[i].f_is_tcp_ping then Continue;
+
         AQuery.Close;
+
         AQuery.SQL.Text := 'select * from modems where id_equipment='+MyTimerThread[i].f_idEquipment;
         AQuery.Open;
           f_is_ap_rep_old := MyTimerThread[i].f_is_ap_repeater;
@@ -161,17 +164,16 @@ begin
               ' установлен в '+ BooleanToString(MyTimerThread[i].f_is_access_point));
             Synchronize(UpdateMemoOnForm);
           end;
-
           f_firmware := ReadFirmwareVer(MyTimerThread[i].f_host);
           if f_firmware<>'' then MyTimerThread[i].f_new := (f_firmware <> '5.5');
           AQuery.Close;
-          if (f_firmware<>'')and(f_firmware<>MyTimerThread[i].f_firmware_thread) then
+          if (f_firmware <> MyTimerThread[i].f_firmware_thread) and (f_firmware <> '') then
           begin
              MyTimerThread[i].f_firmware_thread:= f_firmware;
              SaveFirmwareToMySQL(MyTimerThread[i].f_idEquipment,f_firmware);
-             SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem+
+             SaveLogToFile(LogFileName,'Информация о firmware для ' + MyTimerThread[i].f_nameModem +
                   ' обновлена с '+ MyTimerThread[i].f_firmware_thread + ' до '+f_firmware);
-               Synchronize(UpdateMemoOnForm);
+             Synchronize(UpdateMemoOnForm);
           end;
       end;
     end;
