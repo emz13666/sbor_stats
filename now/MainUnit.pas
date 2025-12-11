@@ -283,7 +283,7 @@ begin
      if debuggg then
        Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_pc, e.ip_alias, e.equipment_type,'+
         ' e.useInMonitoring, e.id  FROM modems m, equipment e WHERE e.useInMonitoring=1 and e.id=m.id_equipment'+
-        ' and e.name = "EX19" order by e.name'
+        ' and e.name = "IPTEL_PS4_3128_" order by e.name'
      else
        Modems.SQL.Text := 'SELECT m.id_modem, m.is_access_point, m.is_ap_repeater, m.mac_wds_peer, m.firmware, e.name, e.ip_address, e.ip_pc, e.ip_alias, e.equipment_type,'+
         ' e.useInMonitoring, e.id  FROM modems m, equipment e WHERE e.useInMonitoring=1 and '+
@@ -418,7 +418,7 @@ begin
     if debuggg then
        Modems.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, l.model_lte,'+
         ' e.useInMonitoring, e.equipment_type  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
-        'e.id=l.id_equipment and e.name = "A121" order by e.name'
+        'e.id=l.id_equipment and e.name = "IPTEL_PS4_3128" order by e.name'
     else
        Modems.SQL.Text := 'SELECT l.id_equipment, e.name, l.ip_vpn, l.ip_lte, l.model_lte,'+
         ' e.useInMonitoring, e.equipment_type  FROM lte l, equipment e WHERE e.useInMonitoring=1 and '+
@@ -433,6 +433,9 @@ begin
       MyTimerThread[high(MyTimerThread)].f_eq_type := Modems.FieldByName('equipment_type').AsInteger;
       MyTimerThread[high(MyTimerThread)].f_is_lte := true;
       MyTimerThread[high(MyTimerThread)].f_type_lte := Modems.FieldByName('model_lte').AsString;
+      if MyTimerThread[high(MyTimerThread)].f_type_lte = 'RBLHGR' then
+        MyTimerThread[high(MyTimerThread)].f_type_lte := 'RBSXTR';
+
       MyTimerThread[high(MyTimerThread)].f_is_alias := false;
       MyTimerThread[high(MyTimerThread)].f_nameModem := Modems.FieldByName('name').AsString;
       MyTimerThread[high(MyTimerThread)].f_new := false;
